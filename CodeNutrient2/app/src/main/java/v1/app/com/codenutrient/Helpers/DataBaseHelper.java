@@ -194,16 +194,16 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
     public long insertCalorieHistory(int user_id, float calories) {
         ContentValues values = new ContentValues();
-        values.put("user_id", Integer.valueOf(user_id));
-        values.put("calories", Float.valueOf(calories));
+        values.put("user_id", user_id);
+        values.put("calories", calories);
         return this.myDatabase.insert("CalorieHistory", null, values);
     }
 
     public long insertSteps(int user_id, int steps, float calories) {
         ContentValues values = new ContentValues();
-        values.put("user_id", Integer.valueOf(user_id));
-        values.put("steps", Integer.valueOf(steps));
-        values.put("calories", Float.valueOf(calories));
+        values.put("user_id", user_id);
+        values.put("steps", steps);
+        values.put("calories", calories);
         return this.myDatabase.insert("Steps", null, values);
     }
 
@@ -219,8 +219,8 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
     public long insertWeigthHistory(int user_id, float weigth) {
         ContentValues values = new ContentValues();
-        values.put("user_id", Integer.valueOf(user_id));
-        values.put("weigth", Float.valueOf(weigth));
+        values.put("user_id", user_id);
+        values.put("weigth", weigth);
         return this.myDatabase.insert("WeigthHistory", null, values);
     }
 
@@ -250,14 +250,14 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
     public int updateStepsSended(Date fecha, int user_id) {
         ContentValues values = new ContentValues();
-        values.put("sended", Integer.valueOf(1));
+        values.put("sended", true);
         Format formatter = new SimpleDateFormat("yyyy-MM-DD");
         return this.myDatabase.update("Steps", values, "user_id = ? AND fecha = ? ", new String[]{"" + user_id, formatter.format(fecha)});
     }
 
     public int updateUserCalories(String uid, String provider, float calories) {
         ContentValues values = new ContentValues();
-        values.put("calories", Float.valueOf(calories));
+        values.put("calories", calories);
         return this.myDatabase.update("Users", values, "uid = ? AND provider = ?", new String[]{uid, provider});
     }
 
