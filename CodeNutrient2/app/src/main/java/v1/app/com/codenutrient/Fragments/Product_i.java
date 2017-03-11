@@ -16,6 +16,8 @@ import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
+import java.sql.SQLException;
+
 import v1.app.com.codenutrient.Helpers.DataBaseHelper;
 import v1.app.com.codenutrient.POJO.Constants;
 import v1.app.com.codenutrient.POJO.Product;
@@ -60,7 +62,7 @@ public class Product_i extends Fragment {
         }
     };
 
-    public void setData(Product product, Context context) {
+    public void setData(Product product, Context context) throws SQLException {
         DataBaseHelper dataBaseHelper = new DataBaseHelper(getActivity().getApplicationContext());
         dataBaseHelper.openDataBaseReadWrite();
         Cursor cursor = dataBaseHelper.fetchMeasure(product.getMeasure_id());

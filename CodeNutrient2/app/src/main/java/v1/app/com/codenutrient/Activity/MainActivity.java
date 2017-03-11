@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.ImageButton;
 
 import java.io.IOException;
+import java.sql.SQLException;
 
 import v1.app.com.codenutrient.Helpers.DataBaseHelper;
 import v1.app.com.codenutrient.POJO.AppUser;
@@ -48,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
                 d.executeMeasure();
             }
             d.close();
-        } catch (IOException e) {
+        } catch (IOException | SQLException e) {
             e.printStackTrace();
         }
     }
@@ -61,22 +62,25 @@ public class MainActivity extends AppCompatActivity {
                 case R.id.camara:
                     intent = getIntent().setClass(MainActivity.this, CustomViewFinderScannerActivity.class);
                     startActivityForResult(intent, CAMERA_INTENT);
+                    break;
                 case R.id.cuenta:
                     intent = getIntent().setClass(MainActivity.this, InfoAppUserActivity.class);
                     startActivity(intent);
-                default:
+                    break;
             }
         }
     };
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == CAMERA_INTENT) {
-            String codigo = data.getStringExtra("code");
-            Intent intent = new Intent().setClass(this, ProductActivity.class);
-            intent.putExtra("code", codigo);
-            startActivity(intent);
-                return;
+        if (requestCode == CAMERA_INTENT) {
+            if (resultCode == RESULT_OK) {
+                String codigo = data.getStringExtra("code");
+                Intent intent = new Intent().setClass(this, ProductActivity.class);
+                intent.putExtra("code", codigo);
+                startActivity(intent);
+            }else{
+                Snackbar.make(findViewById(R.id.main_coordinator), "No se ha obtenido ningun código", Snackbar.LENGTH_SHORT).show();
             }
-            Snackbar.make(findViewById(R.id.main_coordinator), "No se ha obtenido ningun código", Snackbar.LENGTH_SHORT).show();
+        }
     }
 }

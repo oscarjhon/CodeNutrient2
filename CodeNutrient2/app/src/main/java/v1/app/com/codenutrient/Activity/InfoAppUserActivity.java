@@ -79,7 +79,7 @@ public class InfoAppUserActivity extends AppCompatActivity implements DatePicker
                 case R.id.til_date:
                     //Mostar selector de fehca
                     Calendar now = Calendar.getInstance();
-                    now.set(Calendar.YEAR, -18);
+                    now.add(Calendar.YEAR, -18);
                     DatePickerDialog datePickerDialog;
                     if (Fecha != null) {
                         Calendar calendar = Calendar.getInstance();

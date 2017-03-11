@@ -24,6 +24,8 @@ import com.google.android.gms.common.api.OptionalPendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 
+import java.sql.SQLException;
+
 import v1.app.com.codenutrient.HTTP.HttpManager;
 import v1.app.com.codenutrient.Helpers.DataBaseHelper;
 import v1.app.com.codenutrient.POJO.AppUser;
@@ -61,12 +63,16 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         googleApiClient.connect();
         OptionalPendingResult<GoogleSignInResult> optional = Auth.GoogleSignInApi.silentSignIn(this.googleApiClient);
         if (optional.isDone()) {
-            handleSignInResult(optional.get());
+            try {
+                handleSignInResult(optional.get());
+            } catch (SQLException e) {
+                showError();
+            }
         }else {
             progressBar.setVisibility(View.INVISIBLE);
-            this.image.setVisibility(View.VISIBLE);
-            this.text.setVisibility(View.VISIBLE);
-            this.signInButton.setVisibility(View.VISIBLE);
+            image.setVisibility(View.VISIBLE);
+            text.setVisibility(View.VISIBLE);
+            signInButton.setVisibility(View.VISIBLE);
         }
     }
 
@@ -92,10 +98,10 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
         signInButton.setEnabled(false);
-        Snackbar.make(findViewById(R.id.loginCoordinator), (CharSequence) "No se ha podido iniciar sesi\u00f3n", -1).show();
+        Snackbar.make(findViewById(R.id.loginCoordinator), "No se ha podido iniciar sesión", Snackbar.LENGTH_SHORT).show();
     }
 
-    private AppUser FirstOrCreate(String provider, String uid, String name, String token, String email) {
+    private AppUser FirstOrCreate(String provider, String uid, String name, String token, String email) throws SQLException {
         AppUser appUser = getDatabaseUser(provider, uid);
         DataBaseHelper helper = new DataBaseHelper(getApplicationContext());
         helper.openDataBaseReadWrite();
@@ -131,7 +137,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         });
     }
 
-    private AppUser getDatabaseUser(String provider, String uid) {
+    private AppUser getDatabaseUser(String provider, String uid) throws SQLException {
         DataBaseHelper dataBaseHelper = new DataBaseHelper(getApplicationContext());
         dataBaseHelper.openDataBaseRead();
         Cursor cursor = dataBaseHelper.fetchUser(uid, provider);
@@ -147,7 +153,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         }
     }
 
-    private void handleSignInResult(GoogleSignInResult result) {
+    private void handleSignInResult(GoogleSignInResult result) throws SQLException {
          if (result.isSuccess()) {
              GoogleSignInAccount account = result.getSignInAccount();
              AppUser appUser;
@@ -165,6 +171,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
             appUser = getDatabaseUser("Google", account.getId());
             if (appUser == null) {
                 showError();
+                return;
             }
             appUser.setPhoto(account.getPhotoUrl());
             moveToMain(appUser);
@@ -190,13 +197,21 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         progressBar.setVisibility(View.INVISIBLE);
         Snackbar.make(findViewById(R.id.loginCoordinator), "No se ha podido iniciar sesión", Snackbar.LENGTH_SHORT).show();
         disconect();
+        progressBar.setVisibility(View.INVISIBLE);
+        image.setVisibility(View.VISIBLE);
+        text.setVisibility(View.VISIBLE);
+        signInButton.setVisibility(View.VISIBLE);
     }
 
     private void showError(String message) {
-        this.signInButton.setEnabled(true);
-        this.progressBar.setVisibility(View.INVISIBLE);
+        signInButton.setEnabled(true);
+        progressBar.setVisibility(View.INVISIBLE);
         Snackbar.make(findViewById(R.id.loginCoordinator),  message, Snackbar.LENGTH_SHORT).show();
         disconect();
+        progressBar.setVisibility(View.INVISIBLE);
+        image.setVisibility(View.VISIBLE);
+        text.setVisibility(View.VISIBLE);
+        signInButton.setVisibility(View.VISIBLE);
     }
 
     private void signIn() {
@@ -205,13 +220,21 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == RC_SIGN_IN) {
-            handleSignInResult(Auth.GoogleSignInApi.getSignInResultFromIntent(data));
+            try {
+                handleSignInResult(Auth.GoogleSignInApi.getSignInResultFromIntent(data));
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
     }
 
     public void postExecute(AppUser appUser) {
         if (appUser.getCode() == 200) {
-            appUser = FirstOrCreate(appUser.getProvider(), appUser.getUid(), appUser.getName(), appUser.getToken(), appUser.getEmail());
+            try {
+                appUser = FirstOrCreate(appUser.getProvider(), appUser.getUid(), appUser.getName(), appUser.getToken(), appUser.getEmail());
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
             if (appUser != null) {
                 appUser.setPhoto(appUser.getPhoto());
                 moveToMain(appUser);

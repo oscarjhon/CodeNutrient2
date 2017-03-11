@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
 
+import java.sql.SQLException;
+
 import v1.app.com.codenutrient.Fragments.Product_i;
 import v1.app.com.codenutrient.HTTP.HttpManager;
 import v1.app.com.codenutrient.POJO.AppUser;
@@ -51,25 +53,33 @@ public class ProductActivity extends AppCompatActivity {
             case 0:
                 Toast.makeText(getApplicationContext(), "Error del servidor", Toast.LENGTH_SHORT).show();
             case 200:
-                fragment.setData(product, this);
+                try {
+                    fragment.setData(product, this);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+                break;
             case 401:
                 if (!this.manager.isOnLine(getApplicationContext())) {
-                    Toast.makeText(getApplicationContext(), "No estas conectado a internet", 0).show();
+                    Toast.makeText(getApplicationContext(), "No estas conectado a internet", Toast.LENGTH_SHORT).show();
                     finish();
                 } else if (manager.reload(reload, getApplicationContext())) {
-                    Toast.makeText(getApplicationContext(), "Error al iniciar sesi\u00f3n", 0).show();
+                    Toast.makeText(getApplicationContext(), "Error al iniciar sesi\u00f3n", Toast.LENGTH_SHORT).show();
                     finish();
                 } else {
-                    new MyTask().execute(new String[0]);
+                    new MyTask().execute();
                 }
+                break;
             case 404:
-                Toast.makeText(getApplicationContext(), "El producto no fue encontrado", 0).show();
+                Toast.makeText(getApplicationContext(), "El producto no fue encontrado", Toast.LENGTH_SHORT).show();
                 finish();
+                break;
             case 500:
-                Toast.makeText(getApplicationContext(), "Ha ocurrido un error en el servidor", 0).show();
+                Toast.makeText(getApplicationContext(), "Ha ocurrido un error en el servidor", Toast.LENGTH_SHORT).show();
                 finish();
+                break;
             default:
-                Toast.makeText(getApplicationContext(), "No se pudo obtener el producto", 0).show();
+                Toast.makeText(getApplicationContext(), "No se pudo obtener el producto", Toast.LENGTH_SHORT).show();
                 finish();
         }
     }

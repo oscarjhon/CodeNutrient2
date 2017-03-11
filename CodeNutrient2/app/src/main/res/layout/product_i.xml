@@ -4,9 +4,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/productCoordinator">
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content">
         <ProgressBar
             android:id="@+id/product_progress"
             android:layout_width="wrap_content"
@@ -19,55 +22,73 @@
             android:layout_height="wrap_content"
             android:id="@+id/product_name"
             style="@style/Tittle"
-            android:visibility="gone"/>
+            android:visibility="invisible"
+            android:layout_below="@+id/product_progress"
+            android:layout_centerHorizontal="true" />
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/product_image"
             android:background="@mipmap/ic_launcher"
-            android:visibility="gone"
-            android:layout_centerHorizontal="true"/>
+            android:visibility="invisible"
+            android:layout_marginTop="23dp"
+            android:layout_below="@+id/product_name"
+            android:layout_alignLeft="@+id/product_progress"
+            android:layout_alignStart="@+id/product_progress" />
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/presentation"
-            android:visibility="gone"
-            android:layout_centerHorizontal="true"/>
+            android:visibility="invisible"
+            style="@style/Product_content"
+            android:layout_below="@+id/product_image"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="25dp" />
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/product_calories"
-            android:visibility="gone"
-            android:layout_centerHorizontal="true"/>
+            android:visibility="visible"
+            style="@style/Product_content"
+            android:layout_below="@+id/presentation"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="30dp" />
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/product_portions"
-            android:visibility="gone"
-            android:layout_centerHorizontal="true"/>
+            android:visibility="invisible"
+            style="@style/Product_content"
+            android:layout_marginTop="29dp"
+            android:layout_below="@+id/product_calories"
+            android:layout_alignRight="@+id/product_calories"
+            android:layout_alignEnd="@+id/product_calories" />
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/Evaluate"
             android:background="@drawable/buttonshape"
-            android:visibility="gone"
+            android:visibility="invisible"
             android:text="Evaluar_consumo"
             android:drawableStart="@drawable/ic_check_box"
             android:drawableLeft="@drawable/ic_check_box"
             android:drawablePadding="8dp"
+            android:layout_marginTop="38dp"
+            android:layout_below="@+id/product_portions"
             android:layout_centerHorizontal="true" />
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/register"
             android:background="@drawable/buttonshape"
-            android:visibility="gone"
+            android:visibility="invisible"
             android:text="Registrar consumo"
-            android:layout_marginTop="30dp"
             android:drawableStart="@drawable/ic_create_new_folder"
             android:drawableLeft="@drawable/ic_create_new_folder"
             android:drawablePadding="8dp"
+            android:layout_below="@+id/Evaluate"
             android:layout_centerHorizontal="true"
-            />
+            android:layout_marginTop="42dp" />
     </RelativeLayout>
+    </ScrollView>
 </android.support.design.widget.CoordinatorLayout>
