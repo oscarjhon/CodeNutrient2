@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "576289039227",
+    "project_id": "codenutrient"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:576289039227:android:7283a4bc07d21648",
+        "android_client_info": {
+          "package_name": "v1.app.com.codenutrient"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "576289039227-mikr76ppcom4godc3vecadlg5c1a1th4.apps.googleusercontent.com",
+          "client_type": 3
+        },
+        {
+          "client_id": "576289039227-gmv8oqh19g9sn8cf3ko63o563bme0en3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "v1.app.com.codenutrient",
+            "certificate_hash": "3748cb54779e5d144f762acd27863b51737160e2"
+          }
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyChfPYpPnueIMmp9D4B0GR1BkGu8ofEDpw"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
