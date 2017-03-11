@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/productCoordinator">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <ProgressBar
+            android:id="@+id/product_progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            android:indeterminateDrawable="@xml/progress"
+            android:layout_centerHorizontal="true" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/product_name"
+            style="@style/Tittle"
+            android:visibility="gone"/>
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/product_image"
+            android:background="@mipmap/ic_launcher"
+            android:visibility="gone"
+            android:layout_centerHorizontal="true"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/presentation"
+            android:visibility="gone"
+            android:layout_centerHorizontal="true"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/product_calories"
+            android:visibility="gone"
+            android:layout_centerHorizontal="true"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/product_portions"
+            android:visibility="gone"
+            android:layout_centerHorizontal="true"/>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/Evaluate"
+            android:background="@drawable/buttonshape"
+            android:visibility="gone"
+            android:text="Evaluar_consumo"
+            android:drawableStart="@drawable/ic_check_box"
+            android:drawableLeft="@drawable/ic_check_box"
+            android:drawablePadding="8dp"
+            android:layout_centerHorizontal="true" />
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/register"
+            android:background="@drawable/buttonshape"
+            android:visibility="gone"
+            android:text="Registrar consumo"
+            android:layout_marginTop="30dp"
+            android:drawableStart="@drawable/ic_create_new_folder"
+            android:drawableLeft="@drawable/ic_create_new_folder"
+            android:drawablePadding="8dp"
+            android:layout_centerHorizontal="true"
+            />
+    </RelativeLayout>
+</android.support.design.widget.CoordinatorLayout>

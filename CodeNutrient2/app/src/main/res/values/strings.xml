@@ -1,3 +1,20 @@
 <resources>
+    <string name="afirmativo">Si</string>
     <string name="app_name">CodeNutrient</string>
+    <string name="code_reader_text">Coloca el código en el rectángulo del centro.</string>
+    <string name="custom_view_finder_scanner_activity">CodeNutrient</string>
+    <string name="dis_diabetes">Diabetes</string>
+    <string name="dis_hipertension">Hipertensión</string>
+    <string name="hint_date">Fecha de nacimiento</string>
+    <string name="hint_diseases">¿Padeces alguna de estas enfermedades?</string>
+    <string name="hint_estatura">Introduce tu estatura - cm</string>
+    <string name="hint_female">Femenino</string>
+    <string name="hint_gender">Selecciona tu genero</string>
+    <string name="hint_lactancy">¿Actualmente estás lactando?</string>
+    <string name="hint_male">Masculino</string>
+    <string name="hint_peso">Introduce tu peso - KG</string>
+    <string name="hint_pregnancy">¿Actualmente estás embarazada?</string>
+    <string name="login_text">Inicia sesión con tu cuenta de google</string>
+    <string name="negativo">no</string>
+    <string name="send_info">Enviar infromación</string>
 </resources>
