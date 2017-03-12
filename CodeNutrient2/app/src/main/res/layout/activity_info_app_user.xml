@@ -16,14 +16,20 @@
     android:descendantFocusability="beforeDescendants"
     android:focusableInTouchMode="true">
 
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:id="@+id/scroll"
+        android:visibility="visible">
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
             <LinearLayout
+                android:layout_marginTop="10dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingBottom="20dp">
@@ -88,7 +94,8 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp">
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -118,8 +125,10 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp">
                 <TextView
+                    style="@style/Product_content"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:drawableStart="@drawable/ic_gender"
@@ -127,29 +136,41 @@
                     android:drawablePadding="10dp"
                     android:text="@string/hint_gender"/>
             </LinearLayout>
-            <RadioGroup
+            <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-                <android.support.v7.widget.AppCompatRadioButton
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="16dp"
-                    android:layout_marginRight="16dp"
-                    android:text="@string/hint_male"
-                    android:id="@+id/male"/>
-                <android.support.v7.widget.AppCompatRadioButton
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/hint_female"
-                    android:id="@+id/female"/>
-            </RadioGroup>
+                android:layout_height="wrap_content"
+                android:id="@+id/til_gender"
+                android:layout_marginStart="32dp"
+                android:layout_marginLeft="32dp"
+                app:hintAnimationEnabled="true"
+                app:hintTextAppearance="@style/TextAppearence.App.TextInputLayout"
+                app:errorTextAppearance="@style/InputError"
+                app:errorEnabled="true">
+                <RadioGroup
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <android.support.v7.widget.AppCompatRadioButton
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="16dp"
+                        android:layout_marginRight="16dp"
+                        android:text="@string/hint_male"
+                        android:id="@+id/male"/>
+                    <android.support.v7.widget.AppCompatRadioButton
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/hint_female"
+                        android:id="@+id/female"/>
+                </RadioGroup>
+            </android.support.design.widget.TextInputLayout>
 
             <LinearLayout
                 android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/em_fields"
-                android:visibility="gone">
+                android:visibility="gone"
+                android:layout_marginTop="10dp">
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
@@ -161,23 +182,34 @@
                         android:drawablePadding="10dp"
                         android:text="@string/hint_pregnancy"/>
                 </LinearLayout>
-                <RadioGroup
+                <android.support.design.widget.TextInputLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-                    <android.support.v7.widget.AppCompatRadioButton
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="16dp"
-                        android:layout_marginRight="16dp"
-                        android:text="@string/afirmativo"
-                        android:id="@+id/em_afirmativo" />
+                    android:layout_height="wrap_content"
+                    android:id="@+id/til_pregnancy"
+                    android:layout_marginStart="32dp"
+                    android:layout_marginLeft="32dp"
+                    app:hintAnimationEnabled="true"
+                    app:hintTextAppearance="@style/TextAppearence.App.TextInputLayout"
+                    app:errorTextAppearance="@style/InputError"
+                    app:errorEnabled="true">
+                    <RadioGroup
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+                        <android.support.v7.widget.AppCompatRadioButton
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="16dp"
+                            android:layout_marginRight="16dp"
+                            android:text="@string/afirmativo"
+                            android:id="@+id/em_afirmativo" />
 
-                    <android.support.v7.widget.AppCompatRadioButton
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/negativo"
-                        android:id="@+id/em_negativo"/>
-                </RadioGroup>
+                        <android.support.v7.widget.AppCompatRadioButton
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/negativo"
+                            android:id="@+id/em_negativo"/>
+                    </RadioGroup>
+                </android.support.design.widget.TextInputLayout>
             </LinearLayout>
 
             <LinearLayout
@@ -185,7 +217,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/lac_fields"
-                android:visibility="gone">
+                android:visibility="gone"
+                android:layout_marginTop="10dp">
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
@@ -197,37 +230,54 @@
                         android:drawablePadding="10dp"
                         android:text="@string/hint_lactancy"/>
                 </LinearLayout>
-                <RadioGroup
+                <android.support.design.widget.TextInputLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-                    <android.support.v7.widget.AppCompatRadioButton
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/afirmativo"
-                        android:id="@+id/lac_afirmativo"/>
-                    <android.support.v7.widget.AppCompatRadioButton
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/negativo"
-                        android:id="@+id/lac_negativo"/>
-                </RadioGroup>
+                    android:layout_height="wrap_content"
+                    android:id="@+id/til_lactancy"
+                    android:layout_marginStart="32dp"
+                    android:layout_marginLeft="32dp"
+                    app:hintAnimationEnabled="true"
+                    app:hintTextAppearance="@style/TextAppearence.App.TextInputLayout"
+                    app:errorTextAppearance="@style/InputError"
+                    app:errorEnabled="true">
+                    <RadioGroup
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+                        <android.support.v7.widget.AppCompatRadioButton
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/afirmativo"
+                            android:id="@+id/lac_afirmativo"/>
+                        <android.support.v7.widget.AppCompatRadioButton
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/negativo"
+                            android:id="@+id/lac_negativo"/>
+                    </RadioGroup>
+                </android.support.design.widget.TextInputLayout>
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp">
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:drawableStart="@drawable/ic_disease"
                     android:drawableLeft="@drawable/ic_disease"
                     android:text="@string/hint_diseases"
-                    android:drawablePadding="10dp"/>
+                    android:drawablePadding="10dp"
+                    style="@style/Product_content"/>
             </LinearLayout>
+
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginStart="32dp"
+                android:layout_marginLeft="32dp">
                 <android.support.v7.widget.AppCompatCheckBox
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -241,10 +291,14 @@
             </LinearLayout>
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:paddingTop="20dp"
+                android:layout_marginStart="32dp"
+                android:layout_marginLeft="32dp">
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:id="@+id/info_send"
                     android:text="@string/send_info"
                     android:background="@drawable/buttonshape"
                     android:drawableStart="@drawable/ic_send"
@@ -256,4 +310,12 @@
             </LinearLayout>
         </LinearLayout>
     </ScrollView>
+        <ProgressBar
+            android:id="@+id/info_progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            android:indeterminateDrawable="@xml/progress"
+            android:layout_centerHorizontal="true"/>
+    </RelativeLayout>
 </android.support.design.widget.CoordinatorLayout>
