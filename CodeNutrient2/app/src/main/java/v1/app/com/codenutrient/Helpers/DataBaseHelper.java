@@ -76,6 +76,20 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         }
     }
 
+    public void reloadUser(){
+        myDatabase.execSQL("DROP TABLE Users");
+        myDatabase.execSQL("CREATE TABLE Users (id INTEGER PRIMARY KEY  NOT NULL, " +
+                "email TEXT NOT NULL, " +
+                "provider TEXT NOT NULL, " +
+                "token TEXT NOT NULL, " +
+                "uid TEXT NOT NULL, " +
+                "name TEXT NOT NULL, " +
+                "range_id INTEGER DEFAULT (null), " +
+                "calories FLOAT DEFAULT (2000), " +
+                "edad INT DEFAULT (18), " +
+                "FOREIGN KEY (range_id) REFERENCES Range(id))");
+    }
+
     public void executeMeasure() {
         myDatabase.execSQL("CREATE TABLE IF NOT EXISTS measures (id INTEGER PRIMARY KEY  AUTOINCREMENT  NOT NULL , nombre TEXT, abreviacion TEXT);");
         myDatabase.execSQL("INSERT INTO measures(nombre, abreviacion) VALUES('Kilogramos','kg');");
@@ -275,6 +289,13 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         values.put("token", token);
         values.put("email", email);
         values.put("name", name);
+        return this.myDatabase.update("Users", values, "uid = ? AND provider = ?", new String[]{uid, provider});
+    }
+
+    public int updateUserAge(String uid, String provider, int edad) {
+
+        ContentValues values = new ContentValues();
+        values.put("edad", edad);
         return this.myDatabase.update("Users", values, "uid = ? AND provider = ?", new String[]{uid, provider});
     }
 

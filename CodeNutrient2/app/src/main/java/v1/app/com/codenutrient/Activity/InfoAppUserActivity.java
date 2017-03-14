@@ -19,14 +19,18 @@ import android.widget.Toast;
 
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 
-import org.w3c.dom.Text;
-
+import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.concurrent.ExecutionException;
 
 import v1.app.com.codenutrient.HTTP.HttpManager;
+import v1.app.com.codenutrient.Helpers.DataBaseHelper;
+import v1.app.com.codenutrient.Helpers.ReloadUser;
+import v1.app.com.codenutrient.Helpers.UserRequests;
+import v1.app.com.codenutrient.POJO.BNV_response;
 import v1.app.com.codenutrient.POJO.InfoAppUser;
 import v1.app.com.codenutrient.R;
 
@@ -144,6 +148,7 @@ public class InfoAppUserActivity extends AppCompatActivity implements DatePicker
                     lac_fields.setVisibility(View.VISIBLE);
                     break;
                 case R.id.info_send:
+                    reload = 0;
                     disbleFiels();
                     validFields();
                     break;
@@ -152,36 +157,56 @@ public class InfoAppUserActivity extends AppCompatActivity implements DatePicker
     };
 
     public void validFields(){
-        boolean error = false;
+        boolean error = false, p = true;
         InfoAppUser infoAppUser = new InfoAppUser();
         //Validar fecha
         Calendar maxDate = Calendar.getInstance();
         maxDate.add(Calendar.YEAR, -18);
         Date max = maxDate.getTime();
-        if (!(max.equals(Fecha) || max.before(Fecha))){
-            til_date.setError("Debes tener al menos 18 años");
-            error = true;
+        if(!(Fecha == null)){
+            if (!(max.equals(Fecha) || max.after(Fecha))){
+                til_date.setError("Debes tener al menos 18 años");
+                error = true;
+            }else{
+                til_date.setError(null);
+                infoAppUser.setFechaNacimiento(Fecha);
+            }
         }else{
-            til_date.setError(null);
-            infoAppUser.setFechaNacimiento(Fecha);
+            til_date.setError("Introduce una fecha de nacimiento");
+            error = true;
         }
         //Validar peso
-        float peso1 = Float.parseFloat(String.valueOf(peso.getText()));
-        if (peso1 < 30 || peso1 > 300){
-            til_peso.setError("El peso está fuera de los rangos permitidos 30 - 300");
-            error = true;
-        }else{
-            til_peso.setError(null);
-            infoAppUser.setPeso(peso1);
-        }
-        //Validar estatura
-        float estatura1 = Float.parseFloat(String.valueOf(estatura.getText()));
-        if (estatura1 < 30 || estatura1 > 300){
-            til_estatura.setError("La estatura está fuera de los rangos permitidos 30 -300");
-            error = true;
-        }else{
-            til_estatura.setError(null);
-            infoAppUser.setEstatura(estatura1);
+        try {
+            float peso1 = Float.parseFloat(String.valueOf(peso.getText()));
+            p = false;
+            if (peso1 < 30 || peso1 > 300) {
+                til_peso.setError("El peso está fuera de los rangos permitidos 30 - 300");
+                error = true;
+            } else {
+                til_peso.setError(null);
+                infoAppUser.setPeso(peso1);
+            }
+            //Validar estatura
+            float estatura1 = Float.parseFloat(String.valueOf(estatura.getText()));
+            if (estatura1 < 30 || estatura1 > 300) {
+                til_estatura.setError("La estatura está fuera de los rangos permitidos 30 -300");
+                error = true;
+            } else {
+                til_estatura.setError(null);
+                infoAppUser.setEstatura(estatura1);
+            }
+        }catch (NumberFormatException e1){
+            if(p){
+                til_peso.setError("Introduce el peso");
+                error = true;
+            }else{
+                til_estatura.setError("Introduce la estatura");
+                error = true;
+            }
+            if (String.valueOf(estatura.getText()).equals("")){
+                til_estatura.setError("Introduce la estatura");
+                error = true;
+            }
         }
         //validar genero
         if (male.isChecked()){
@@ -249,9 +274,91 @@ public class InfoAppUserActivity extends AppCompatActivity implements DatePicker
             ShowMessage("No se puede almacenar esta información");
         }else{
             //Calcular calorías
+            infoAppUser = Calories(infoAppUser);
             //Hacer POST
+            if (manger.isOnLine(getApplicationContext())) {
+                MyTaskPOST myTaskPOST = new MyTaskPOST();
+                myTaskPOST.execute(infoAppUser);
+            }else{
+                ShowMessage("Debes tener conexión a internet para enviar esta información");
+            }
         }
     }
+
+    public void validatePOSTRespose(InfoAppUser infoAppUser){
+        switch (infoAppUser.getCode()){
+            case 200:
+                //Obtener BNV
+                DataBaseHelper helper = new DataBaseHelper(getApplicationContext());
+                try {
+                    helper.openDataBaseRead();
+                    BNV_response response = new BNV_response();
+                    if(infoAppUser.isSexo()){
+                        response = response.passCursorToValue(infoAppUser, helper.fetchNVMale(infoAppUser.getEdad()));
+                    }else {
+                        response = response.passCursorToValue(infoAppUser, helper.fetchNVFemale(infoAppUser.getEdad(), infoAppUser.isEmbarazo() ? 1 : 0, infoAppUser.isLactancia() ? 1 : 0));
+                    }
+                } catch (SQLException e) {
+                    ShowMessage("Ocurrio un error al calcular los valores optimos de consumo");
+                }
+
+                //Hacer post a los y a los BNV
+                break;
+            case 206:
+                ShowMessage("No se han podido registrar las enfermedades, intentalo de nuevo");
+                break;
+            case 401:
+                //repetir
+                reload ++;
+                if (!manger.isOnLine(getApplicationContext())) {
+                    Toast.makeText(getApplicationContext(), "Debes tener conexión a internet para utilizar esta función", Toast.LENGTH_SHORT).show();
+                    finish();
+                } else if (manger.reload(reload, getApplicationContext())) {
+                    MyTaskPOST myTaskPOST = new MyTaskPOST();
+                    myTaskPOST.execute(infoAppUser);
+                } else {
+                    Toast.makeText(getApplicationContext(), "Ha ocurrido un error al iniciar sesión", Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+                break;
+            case 422:
+                //Datos incorrectos
+                ShowMessage("Los datos introducidos son incorrectos");
+                break;
+            default:
+                ShowMessage("Ha ocurrido un error inesperado");
+                //Error
+        }
+    }
+
+    public InfoAppUser Calories(InfoAppUser infoAppUser){
+        /**
+         * RMR(Kcal/día)=66.4730+(13.7516*p)+(5.003*s)-(6.7550*e)
+         * RMR(Kcal/día)=665.0955+(9.5634*p)+(1.8496*s)-(4.6756*e)
+         */
+        Calendar hoy = Calendar.getInstance();
+        Calendar nacimiento = Calendar.getInstance();
+        nacimiento.setTime(infoAppUser.getFechaNacimiento());
+        float RMR = 2000;
+        int edad = infoAppUser.getYear(hoy, nacimiento);
+        infoAppUser.setEdad(edad);
+        if (infoAppUser.isSexo()){
+            RMR = (float) (66.4730 + (13.7516 * infoAppUser.getPeso()) + (5.003 * infoAppUser.getEstatura())
+                                - (6.7550 * edad ));
+        }else {
+            RMR = (float) (665.0955 + (9.5634 * infoAppUser.getPeso()) + (1.8496 * infoAppUser.getEstatura())
+                    - (4.6756 * edad));
+            if (infoAppUser.isEmbarazo()){
+                RMR += 300;
+            } else if (infoAppUser.isLactancia()){
+                RMR += 500;
+            }
+        }
+        infoAppUser.setMax_calorias(RMR);
+        return infoAppUser;
+    }
+
+
 
     public void disbleFiels(){
         send_button.setEnabled(false);
@@ -321,7 +428,7 @@ public class InfoAppUserActivity extends AppCompatActivity implements DatePicker
             case 401:
                 reload ++;
                 if (!this.manger.isOnLine(getApplicationContext())) {
-                    Toast.makeText(getApplicationContext(), "Debes tneer conexión a internet para utilizar esta función", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Debes tener conexión a internet para utilizar esta función", Toast.LENGTH_SHORT).show();
                     finish();
                 } else if (manger.reload(reload, getApplicationContext())) {
                     MyTaskGET myTaskGET = new MyTaskGET();
@@ -369,7 +476,13 @@ public class InfoAppUserActivity extends AppCompatActivity implements DatePicker
 
         @Override
         protected InfoAppUser doInBackground(InfoAppUser... params) {
-            return null;
+            v1.app.com.codenutrient.Requests.InfoAppUser request = new v1.app.com.codenutrient.Requests.InfoAppUser();
+            return request.ExecutePost(params[0], MainActivity.appUser);
+        }
+
+        @Override
+        protected void onPostExecute(InfoAppUser infoAppUser) {
+            validatePOSTRespose(infoAppUser);
         }
     }
 }

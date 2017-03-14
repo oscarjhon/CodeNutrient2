@@ -8,10 +8,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ImageButton;
 
-import java.io.IOException;
-import java.sql.SQLException;
-
-import v1.app.com.codenutrient.Helpers.DataBaseHelper;
 import v1.app.com.codenutrient.POJO.AppUser;
 import v1.app.com.codenutrient.R;
 
@@ -41,17 +37,6 @@ public class MainActivity extends AppCompatActivity {
         this.calendario.setOnClickListener(onClickListener);
         this.settings.setOnClickListener(onClickListener);
         this.about.setOnClickListener(onClickListener);
-        DataBaseHelper d = new DataBaseHelper(getApplicationContext());
-        try {
-            d.createDataBase();
-            d.openDataBaseReadWrite();
-            if (d.checkMeasure()) {
-                d.executeMeasure();
-            }
-            d.close();
-        } catch (IOException | SQLException e) {
-            e.printStackTrace();
-        }
     }
 
     private View.OnClickListener onClickListener = new View.OnClickListener() {

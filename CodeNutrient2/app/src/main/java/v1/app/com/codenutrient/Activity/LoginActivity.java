@@ -24,6 +24,7 @@ import com.google.android.gms.common.api.OptionalPendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 
+import java.io.IOException;
 import java.sql.SQLException;
 
 import v1.app.com.codenutrient.HTTP.HttpManager;
@@ -56,6 +57,17 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         signInButton.setSize(0);
         signInButton.setOnClickListener(listener);
         progressBar = (ProgressBar) findViewById(R.id.login_bar);
+        DataBaseHelper d = new DataBaseHelper(getApplicationContext());
+        try {
+            d.createDataBase();
+            d.openDataBaseReadWrite();
+            if (d.checkMeasure()) {
+                d.executeMeasure();
+            }
+            d.close();
+        } catch (IOException | SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     public void onStart() {

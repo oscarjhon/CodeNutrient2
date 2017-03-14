@@ -1,7 +1,9 @@
 package v1.app.com.codenutrient.POJO;
 
 import android.content.ContentValues;
+import android.widget.Toast;
 
+import java.util.Calendar;
 import java.util.Date;
 
 public class InfoAppUser {
@@ -16,6 +18,7 @@ public class InfoAppUser {
     private float min_calorias;
     private float peso;
     private boolean sexo;
+    private int edad;
 
     public InfoAppUser() {
         diseases = null;
@@ -108,5 +111,24 @@ public class InfoAppUser {
 
     public void setSexo(boolean sexo) {
         this.sexo = sexo;
+    }
+
+    public int getEdad() {
+        return edad;
+    }
+
+    public void setEdad(int edad) {
+        this.edad = edad;
+    }
+
+    public int getYear(Calendar hoy, Calendar nacimiento){
+        int anio = hoy.get(Calendar.YEAR) - nacimiento.get(Calendar.YEAR);
+        int mes = hoy.get(Calendar.MONTH) - nacimiento.get(Calendar.MONTH);
+        int dia = hoy.get(Calendar.DATE) - nacimiento.get(Calendar.DATE);
+
+        if (mes < 0 || mes == 0 && dia < 0){
+            anio --;
+        }
+        return anio;
     }
 }
