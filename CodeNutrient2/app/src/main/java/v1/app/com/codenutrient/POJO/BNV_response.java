@@ -41,16 +41,17 @@ public class BNV_response {
                 do {
                     Values values = new Values();
                     int id = cursor.getInt(cursor.getColumnIndex("nutrient_id"));
-                    int disminucion = 0;
                     switch (id){
-                        case 9:
-
+                        case 19:
+                            values.setValue(((diabetes || hipertension) ? 1500 : cursor.getFloat(cursor.getColumnIndex("value"))));
                             break;
-                        case 18:
-                            break;
+                        default:
+                            values.setValue(cursor.getFloat(cursor.getColumnIndex("value")));
                     }
-                    values.setValue(cursor.getFloat(cursor.getColumnIndex("value")) - disminucion);
+                    this.values.add(values);
                 } while (cursor.moveToNext());
+                response.setValues(values);
+                response.setCode(200);
             } else {
                 response.code = 0;
             }
@@ -64,24 +65,39 @@ public class BNV_response {
         ArrayList<Values> values = new ArrayList<>();
         for(int i = 0; i < 10; i++){
             Values value = new Values();
+            value.setNutrient_id(i);
             switch (i){
                 case 1:
-                    value.setNutrient_id(i);
-                    value.setValue((float) (infoAppUser.getPeso() * .8));
+                    value.setValue((float) (infoAppUser.getPeso() * 0.8));
+                    values.add(value);
                     break;
                 case 2:
+                    value.setValue((float) (infoAppUser.getMax_calorias() * 0.55));
+                    values.add(value);
                     break;
                 case 4:
+                    value.setValue((float) (infoAppUser.getMax_calorias() * 0.27));
+                    values.add(value);
                     break;
                 case 5:
+                    value.setValue((float) (infoAppUser.getMax_calorias() * ((diabetes || hipertension) ? 0.08 : 0.12)));
+                    values.add(value);
                     break;
                 case 6:
+                    value.setValue((float) (infoAppUser.getMax_calorias() * ((diabetes || hipertension) ? 0.05 : 0.08)));
+                    values.add(value);
                     break;
                 case 7:
+                    value.setValue((float) (infoAppUser.getMax_calorias() * 0.09));
+                    values.add(value);
                     break;
                 case 8:
+                    value.setValue((float) (infoAppUser.getMax_calorias() * 0.01));
+                    values.add(value);
                     break;
                 case 9:
+                    value.setValue((float) (infoAppUser.getMax_calorias() * ((diabetes || hipertension) ? 0.05 : 0.1)));
+                    values.add(value);
                     break;
             }
         }

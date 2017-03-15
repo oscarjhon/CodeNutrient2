@@ -27,9 +27,8 @@ import java.util.Date;
 import java.util.concurrent.ExecutionException;
 
 import v1.app.com.codenutrient.HTTP.HttpManager;
+import v1.app.com.codenutrient.Helpers.BNVRequest;
 import v1.app.com.codenutrient.Helpers.DataBaseHelper;
-import v1.app.com.codenutrient.Helpers.ReloadUser;
-import v1.app.com.codenutrient.Helpers.UserRequests;
 import v1.app.com.codenutrient.POJO.BNV_response;
 import v1.app.com.codenutrient.POJO.InfoAppUser;
 import v1.app.com.codenutrient.R;
@@ -46,6 +45,7 @@ public class InfoAppUserActivity extends AppCompatActivity implements DatePicker
     private Button send_button;
     private HttpManager manger;
     private int reload;
+    private  BNV_response response;
 
     public InfoAppUserActivity() {
         reload = 0;
@@ -289,20 +289,31 @@ public class InfoAppUserActivity extends AppCompatActivity implements DatePicker
         switch (infoAppUser.getCode()){
             case 200:
                 //Obtener BNV
+                ShowMessage("Espera mientras se calcula tu información de consumo");
                 DataBaseHelper helper = new DataBaseHelper(getApplicationContext());
                 try {
                     helper.openDataBaseRead();
-                    BNV_response response = new BNV_response();
+                    response = new BNV_response();
                     if(infoAppUser.isSexo()){
                         response = response.passCursorToValue(infoAppUser, helper.fetchNVMale(infoAppUser.getEdad()));
                     }else {
                         response = response.passCursorToValue(infoAppUser, helper.fetchNVFemale(infoAppUser.getEdad(), infoAppUser.isEmbarazo() ? 1 : 0, infoAppUser.isLactancia() ? 1 : 0));
                     }
-                } catch (SQLException e) {
+                    reload = 0;
+                    if (response.getCode() == 200) {
+                        if (manger.isOnLine(getApplicationContext())) {
+                            BNVRequest request = new BNVRequest();
+                            BNV_response response2 = request.execute(response).get();
+                            PassBNVrespose(response2);
+                        }else{
+                            ShowMessage("Debes tener conexión a internet para enviar esta información");
+                        }
+                    }else{
+                        ShowMessage("Ocurrio un error al calcular los valores de consumo");
+                    }
+                } catch (SQLException | InterruptedException | ExecutionException e) {
                     ShowMessage("Ocurrio un error al calcular los valores optimos de consumo");
                 }
-
-                //Hacer post a los y a los BNV
                 break;
             case 206:
                 ShowMessage("No se han podido registrar las enfermedades, intentalo de nuevo");
@@ -331,6 +342,34 @@ public class InfoAppUserActivity extends AppCompatActivity implements DatePicker
         }
     }
 
+    public void PassBNVrespose (BNV_response response){
+        switch (response.getCode()){
+            case 200:
+                enableFields();
+                ShowMessage("Se ha registrado tu información de consumo");
+                break;
+            case 401:
+                reload ++;
+                if (!this.manger.isOnLine(getApplicationContext())) {
+                   ShowMessage("Debes tener conexión a internet para realizar esta operacion");
+                } else if (manger.reload(reload, getApplicationContext())) {
+                    BNVRequest request = new BNVRequest();
+                    try {
+                        BNV_response response2 = request.execute(this.response).get();
+                        PassBNVrespose(response2);
+                    } catch (InterruptedException | ExecutionException e) {
+                        ShowMessage("No se pudieron registrar tus valores de consumo, vuelve a intentarlo");
+                    }
+                } else {
+                    ShowMessage("Ha ocurrido un error al iniciar sesión");
+                }
+                break;
+            default:
+                ShowMessage("No se pudieron registrar tus valores de consumo, vuelve a intentarlo");
+                break;
+        }
+    }
+
     public InfoAppUser Calories(InfoAppUser infoAppUser){
         /**
          * RMR(Kcal/día)=66.4730+(13.7516*p)+(5.003*s)-(6.7550*e)
@@ -339,7 +378,7 @@ public class InfoAppUserActivity extends AppCompatActivity implements DatePicker
         Calendar hoy = Calendar.getInstance();
         Calendar nacimiento = Calendar.getInstance();
         nacimiento.setTime(infoAppUser.getFechaNacimiento());
-        float RMR = 2000;
+        float RMR;
         int edad = infoAppUser.getYear(hoy, nacimiento);
         infoAppUser.setEdad(edad);
         if (infoAppUser.isSexo()){

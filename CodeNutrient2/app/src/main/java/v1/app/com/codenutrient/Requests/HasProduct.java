@@ -1,7 +1,5 @@
 package v1.app.com.codenutrient.Requests;
 
-import android.os.CpuUsageInfo;
-
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.Date;
