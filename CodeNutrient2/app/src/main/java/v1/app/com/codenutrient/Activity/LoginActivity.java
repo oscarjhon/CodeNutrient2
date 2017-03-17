@@ -59,6 +59,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         progressBar = (ProgressBar) findViewById(R.id.login_bar);
         DataBaseHelper d = new DataBaseHelper(getApplicationContext());
         try {
+            d.delete();
             d.createDataBase();
             d.openDataBaseReadWrite();
             if (d.checkMeasure()) {

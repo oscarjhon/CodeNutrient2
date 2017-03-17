@@ -289,6 +289,10 @@ public class InfoAppUserActivity extends AppCompatActivity implements DatePicker
         switch (infoAppUser.getCode()){
             case 200:
                 //Obtener BNV
+                Calendar hoy = Calendar.getInstance();
+                Calendar nacimiento = Calendar.getInstance();
+                nacimiento.setTime(infoAppUser.getFechaNacimiento());
+                infoAppUser.setEdad(infoAppUser.getYear(hoy, nacimiento));
                 ShowMessage("Espera mientras se calcula tu información de consumo");
                 DataBaseHelper helper = new DataBaseHelper(getApplicationContext());
                 try {
@@ -299,6 +303,7 @@ public class InfoAppUserActivity extends AppCompatActivity implements DatePicker
                     }else {
                         response = response.passCursorToValue(infoAppUser, helper.fetchNVFemale(infoAppUser.getEdad(), infoAppUser.isEmbarazo() ? 1 : 0, infoAppUser.isLactancia() ? 1 : 0));
                     }
+                    helper.close();
                     reload = 0;
                     if (response.getCode() == 200) {
                         if (manger.isOnLine(getApplicationContext())) {
@@ -309,7 +314,11 @@ public class InfoAppUserActivity extends AppCompatActivity implements DatePicker
                             ShowMessage("Debes tener conexión a internet para enviar esta información");
                         }
                     }else{
-                        ShowMessage("Ocurrio un error al calcular los valores de consumo");
+                        if (response.getCode() == 0){
+                            ShowMessage("Null");
+                        }else{
+                            ShowMessage("Vacio");
+                        }
                     }
                 } catch (SQLException | InterruptedException | ExecutionException e) {
                     ShowMessage("Ocurrio un error al calcular los valores optimos de consumo");
@@ -392,6 +401,20 @@ public class InfoAppUserActivity extends AppCompatActivity implements DatePicker
             } else if (infoAppUser.isLactancia()){
                 RMR += 500;
             }
+        }
+        DataBaseHelper helper = new DataBaseHelper(getApplicationContext());
+        try {
+            helper.openDataBaseReadWrite();
+            helper.updateUserAge(MainActivity.appUser.getUid(), MainActivity.appUser.getProvider(), edad);
+            helper.updateUserCalories(MainActivity.appUser.getUid(), MainActivity.appUser.getProvider(), RMR);
+            if (infoAppUser.isSexo()){
+                helper.updateUserRangeMale(MainActivity.appUser.getUid(), MainActivity.appUser.getProvider(), edad);
+            }else{
+                helper.updateUserRangeFemale(MainActivity.appUser.getUid(), MainActivity.appUser.getProvider(), edad, infoAppUser.isEmbarazo() ? 1:0, infoAppUser.isLactancia() ? 1:0);
+            }
+            helper.close();
+        } catch (SQLException ignored) {
+           helper.close();
         }
         infoAppUser.setMax_calorias(RMR);
         return infoAppUser;

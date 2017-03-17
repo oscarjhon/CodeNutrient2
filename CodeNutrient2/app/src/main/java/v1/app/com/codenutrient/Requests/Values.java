@@ -33,9 +33,10 @@ public class Values {
         requestPackage.setParams("uid", appUser.getUid() + "");
         requestPackage.setParams("provider", appUser.getProvider());
         requestPackage.setParams("token", appUser.getToken());
+        StringBuilder stringBuilder = new StringBuilder();
         for (int i = 0; i < aux_values.size(); i++) {
             v1.app.com.codenutrient.POJO.Values value = (v1.app.com.codenutrient.POJO.Values) aux_values.get(i);
-            requestPackage.setParams("best[_" + value.getNutrient_id() + "][value]", value.getValue() + "");
+            requestPackage.setParams("best[_"+ value.getNutrient_id() + "][value]", value.getValue() + "");
         }
         Response response = new HttpManager().getData(requestPackage);
         if (response.code == 200) {

@@ -17,4 +17,11 @@
     <string name="login_text">Inicia sesión con tu cuenta de google</string>
     <string name="negativo">no</string>
     <string name="send_info">Enviar infromación</string>
+    <string name="header_product_register">Registrar consumo de este producto</string>
+    <string name="portions_question">¿Cuantas porciones consumiste?</string>
+    <string name="portions">Porciones</string>
+    <string name="packages">Envase completo</string>
+    <string name="select_portions">Selecciona el número de porciones</string>
+    <string name="evaluate">Evaluar consumo</string>
+    <string name="register_consumption">Registrar consumo</string>
 </resources>

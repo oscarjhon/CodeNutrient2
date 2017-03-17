@@ -70,14 +70,18 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     }
 
     public void createDataBase() throws IOException {
-        if (!checkDataBase()) {
-            getReadableDatabase().close();
+        //if (!checkDataBase()) {
+            //getReadableDatabase().close();
             copyDataBase();
-        }
+        //}
+    }
+
+    public void delete(){
+        myContext.deleteDatabase(DB_NAME);
     }
 
     public void reloadUser(){
-        myDatabase.execSQL("DROP TABLE Users");
+        //myDatabase.execSQL("DROP TABLE Users");
         myDatabase.execSQL("CREATE TABLE Users (id INTEGER PRIMARY KEY  NOT NULL, " +
                 "email TEXT NOT NULL, " +
                 "provider TEXT NOT NULL, " +
@@ -151,7 +155,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     }
 
     public Cursor fetchNVFemale(int edad, int em, int lac) throws SQLException {
-        Cursor cursor = this.myDatabase.rawQuery("SELECT nutrient_id, value FROM NutrientValues WHERE gender = 0 and em = ? and lac = ? and range_id = (SELECT id FROM Range WHERE min <=? ORDER BY min DESC Limit 1)", new String[]{"" + em, "" + lac, "" + edad});
+        Cursor cursor = this.myDatabase.rawQuery("SELECT nutrient_id, value FROM NutrientValues WHERE gender = 0 AND em = ? AND lac = ? AND range_id = (SELECT id FROM Range WHERE min <=? ORDER BY min DESC Limit 1)", new String[]{"" + em, "" + lac, "" + edad});
         if (cursor != null) {
             cursor.moveToFirst();
         }
@@ -159,7 +163,8 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     }
 
     public Cursor fetchNVMale(int edad) throws SQLException {
-        Cursor cursor = this.myDatabase.rawQuery("SELECT nutrient_id, value FROM NutrientValues WHERE gender = 1 range_id = (SELECT id FROM Range WHERE min <=? ORDER BY min DESC Limit 1)", new String[]{"" + edad});
+        Cursor cursor = this.myDatabase.rawQuery("SELECT nutrient_id, value FROM NutrientValues " +
+                "WHERE gender = 1 AND range_id = (SELECT id FROM Range WHERE min <= ? ORDER BY min DESC Limit 1)", new String[]{"" + edad});
         if (cursor != null) {
             cursor.moveToFirst();
         }

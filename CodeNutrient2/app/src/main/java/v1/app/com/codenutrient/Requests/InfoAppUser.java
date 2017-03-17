@@ -27,7 +27,7 @@ public class InfoAppUser {
     public v1.app.com.codenutrient.POJO.InfoAppUser ExecutePost(v1.app.com.codenutrient.POJO.InfoAppUser infoAppUser, v1.app.com.codenutrient.POJO.AppUser appUser) {
         RequestPackage requestPackage = new RequestPackage();
         requestPackage.setMethod("POST");
-        requestPackage.setUri("http://172.16.10.11:80/api/v1/info_app_users");
+        requestPackage.setUri(Constants.ip_addr + Constants.service_version + Constants.info_app_users);
         requestPackage.setParams("uid", appUser.getUid() +"");
         requestPackage.setParams("provider", appUser.getProvider());
         requestPackage.setParams("token", appUser.getToken());

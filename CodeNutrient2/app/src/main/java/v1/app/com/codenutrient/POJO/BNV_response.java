@@ -41,6 +41,7 @@ public class BNV_response {
                 do {
                     Values values = new Values();
                     int id = cursor.getInt(cursor.getColumnIndex("nutrient_id"));
+                    values.setNutrient_id(id);
                     switch (id){
                         case 19:
                             values.setValue(((diabetes || hipertension) ? 1500 : cursor.getFloat(cursor.getColumnIndex("value"))));
@@ -53,7 +54,7 @@ public class BNV_response {
                 response.setValues(values);
                 response.setCode(200);
             } else {
-                response.code = 0;
+                response.code = 1;
             }
         }else{
             response.code = 0;

@@ -19,7 +19,7 @@ public class HasProduct {
             for (int i = 0; i < data.length(); i++) {
                 JSONObject has = data.getJSONObject(i);
                 JSONObject has_attributes = has.getJSONObject("attributes");
-                JSONObject j_product = has.getJSONObject("relations").getJSONObject("product");
+                JSONObject j_product = has.getJSONObject("relations").getJSONObject("Product");
                 JSONObject j_product_attributes = j_product.getJSONObject("attributes");
                 v1.app.com.codenutrient.POJO.Product product = new v1.app.com.codenutrient.POJO.Product();
                 product.setNombre(j_product_attributes.getString("nombre"));

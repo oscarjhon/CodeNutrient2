@@ -21,7 +21,6 @@ public class InfoAppUser{
             infoAppUser.setCode(response.code);
             JSONObject data = new JSONObject(response.response).getJSONObject("data");
             JSONObject attributes = data.getJSONObject("attributes");
-            JSONObject relations = data.getJSONObject("relations");
             infoAppUser.setFechaNacimiento(new SimpleDateFormat("yyyy-MM-dd").parse(attributes.getString("fecha_nacimiento")));
             infoAppUser.setPeso((float) attributes.getDouble("peso"));
             infoAppUser.setEstatura((float) attributes.getDouble("estatura"));
@@ -30,17 +29,23 @@ public class InfoAppUser{
             infoAppUser.setMin_calorias((float) attributes.getDouble("min_calorias"));
             infoAppUser.setEmbarazo(attributes.getBoolean("embarazo"));
             infoAppUser.setLactancia(attributes.getBoolean("lactancia"));
-            JSONArray has_disease = relations.getJSONArray("has_diseases");
-            if (has_disease.length() == 0) {
-                diseases = null;
-            } else {
-                int[] aux = new int[has_disease.length()];
-                for (int i = 0; i < has_disease.length(); i++) {
-                    aux[i] = has_disease.getJSONObject(i).getJSONObject("attributes").getInt("disease_id");
-                }
-                diseases = aux;
-            }
-            infoAppUser.setDiseases(diseases);
+           if (data.has("relations")) {
+               JSONObject relations = data.getJSONObject("relations");
+               JSONArray has_disease = relations.getJSONArray("has_diseases");
+               if (has_disease.length() == 0) {
+                   diseases = null;
+               } else {
+                   int[] aux = new int[has_disease.length()];
+                   for (int i = 0; i < has_disease.length(); i++) {
+                       aux[i] = has_disease.getJSONObject(i).getJSONObject("attributes").getInt("disease_id");
+                   }
+                   diseases = aux;
+               }
+               infoAppUser.setDiseases(diseases);
+           }else{
+               diseases = null;
+               infoAppUser.setDiseases(diseases);
+           }
             return infoAppUser;
         } catch (JSONException | ParseException e) {
             e.printStackTrace();
