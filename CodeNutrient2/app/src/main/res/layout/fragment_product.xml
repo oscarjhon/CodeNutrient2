@@ -12,6 +12,9 @@
             android:layout_height="wrap_content"
             android:text="@string/header_product_register"
             style="@style/Tittle"
+            android:id="@+id/register_tittle"
+            android:layout_marginTop="29dp"
+            android:visibility="gone"
             android:layout_gravity="center"
             android:layout_centerHorizontal="true"
             android:gravity="center"/>
@@ -21,11 +24,13 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp">
         <TextView
+            android:visibility="gone"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/portions_question"
             style="@style/Product_content"
             android:gravity="center"
+            android:id="@+id/portions_question"
             android:layout_centerHorizontal="true" />
     </RelativeLayout>
     <RadioGroup
@@ -39,13 +44,15 @@
             android:layout_height="wrap_content"
             android:text="@string/portions"
             style="@style/Product_content"
-            android:id="@+id/porciones"/>
+            android:id="@+id/porciones"
+            android:visibility="gone"/>
         <android.support.v7.widget.AppCompatRadioButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/packages"
             style="@style/Product_content"
-            android:id="@+id/full"/>
+            android:id="@+id/full"
+            android:visibility="gone"/>
     </RadioGroup>
     <LinearLayout
         android:layout_width="match_parent"
@@ -74,7 +81,9 @@
             <Spinner
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/portion_spiner" />
+                android:id="@+id/portion_spiner"
+                android:layout_centerHorizontal="true"
+                android:gravity="center"/>
         </RelativeLayout>
     </LinearLayout>
 
@@ -83,6 +92,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp">
         <Button
+            android:visibility="gone"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
@@ -92,6 +102,7 @@
             android:background="@drawable/buttonshape"
             android:drawableStart="@drawable/ic_send"
             android:drawableLeft="@drawable/ic_send"
-            android:drawablePadding="8dp"/>
+            android:drawablePadding="8dp"
+            android:layout_marginBottom="10dp"/>
     </RelativeLayout>
 </LinearLayout>

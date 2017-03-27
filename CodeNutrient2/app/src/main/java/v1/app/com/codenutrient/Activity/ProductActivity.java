@@ -1,6 +1,7 @@
 package v1.app.com.codenutrient.Activity;
 
 
+import android.app.Fragment;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.AsyncTask;
@@ -20,7 +21,6 @@ import java.sql.SQLException;
 import v1.app.com.codenutrient.HTTP.HttpManager;
 import v1.app.com.codenutrient.Helpers.DataBaseHelper;
 import v1.app.com.codenutrient.POJO.AppUser;
-import v1.app.com.codenutrient.POJO.Constants;
 import v1.app.com.codenutrient.POJO.Product;
 import v1.app.com.codenutrient.R;
 import v1.app.com.codenutrient.Requests.Products;
@@ -39,6 +39,7 @@ public class ProductActivity extends AppCompatActivity {
     public TextView producct_equivalencia;
     public ProgressBar progressBar;
     public Button registrar;
+    public v1.app.com.codenutrient.Fragments.Product fragment;
 
 
     public ProductActivity() {
@@ -63,6 +64,7 @@ public class ProductActivity extends AppCompatActivity {
         registrar = (Button) findViewById(R.id.register);
         evaluar.setOnClickListener(listener);
         registrar.setOnClickListener(listener);
+        fragment = (v1.app.com.codenutrient.Fragments.Product) getFragmentManager().findFragmentById(R.id.product_fragment);
         if (this.manager.isOnLine(getApplicationContext())) {
             new MyTask().execute(new String[0]);
             return;
@@ -77,8 +79,9 @@ public class ProductActivity extends AppCompatActivity {
             switch (v.getId()) {
                 case R.id.Evaluate:
                     Toast.makeText(getApplicationContext(), "Te recomendamos consumir este producto dado su alto contenido de calcio", Toast.LENGTH_SHORT).show();
+                    break;
                 case R.id.register:
-                    Toast.makeText(getApplicationContext(), "Se ha registrado el producto como consumido", Toast.LENGTH_SHORT).show();
+                    fragment.setData(product);
                 default:
             }
         }
@@ -87,7 +90,7 @@ public class ProductActivity extends AppCompatActivity {
     public void setData() {
         reload ++;
         HttpManager manager = new HttpManager();
-        switch (this.product.getCode()) {
+        switch (product.getCode()) {
             case 0:
                 Toast.makeText(getApplicationContext(), "Error del servidor", Toast.LENGTH_SHORT).show();
             case 200:
@@ -102,7 +105,7 @@ public class ProductActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "No estas conectado a internet", Toast.LENGTH_SHORT).show();
                     finish();
                 } else if (manager.reload(reload, getApplicationContext())) {
-                    Toast.makeText(getApplicationContext(), "Error al iniciar sesi\u00f3n", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Error al iniciar sesión", Toast.LENGTH_SHORT).show();
                     finish();
                 } else {
                     new MyTask().execute();
@@ -133,7 +136,7 @@ public class ProductActivity extends AppCompatActivity {
         product_calories.setText("Calorias: " + product.getCalorias());
         product_portions.setText("Porciones: " + product.getPorcion());
         producct_equivalencia.setText("Equivalencia: " + product.getEquivalencia());
-        Picasso.with(context).load(Constants.ip_addr + product.getImageURL()).into(this.imageView);
+        Picasso.with(context).load(product.getImageURL()).into(imageView);
         try {
             Thread.sleep(2000);
         } catch (InterruptedException e) {
@@ -143,6 +146,7 @@ public class ProductActivity extends AppCompatActivity {
         product_name.setVisibility(View.VISIBLE);
         product_calories.setVisibility(View.VISIBLE);
         product_portions.setVisibility(View.VISIBLE);
+        producct_equivalencia.setVisibility(View.VISIBLE);
         imageView.setVisibility(View.VISIBLE);
         presentacion.setVisibility(View.VISIBLE);
         evaluar.setVisibility(View.VISIBLE);

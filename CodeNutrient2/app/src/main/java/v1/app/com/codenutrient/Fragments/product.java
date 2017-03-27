@@ -11,6 +11,7 @@ import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.Spinner;
 import android.widget.Switch;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 
@@ -27,6 +28,7 @@ public class Product extends Fragment {
     private Button send;
     private Spinner spinner;
     private LinearLayout linear;
+    private TextView tittle, portions;
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
         rootView = inflater.inflate(R.layout.fragment_product, container, false);
@@ -35,6 +37,9 @@ public class Product extends Fragment {
         full = (RadioButton) rootView.findViewById(R.id.full);
         send = (Button) rootView.findViewById(R.id.send_product);
         spinner = (Spinner) rootView.findViewById(R.id.portion_spiner);
+
+        portions = (TextView) rootView.findViewById(R.id.portions_question);
+        tittle = (TextView) rootView.findViewById(R.id.register_tittle);
 
         linear = (LinearLayout) rootView.findViewById(R.id.linear_portions);
 
@@ -76,6 +81,12 @@ public class Product extends Fragment {
         }else{
             porciones.setEnabled(false);
         }
+        tittle.setVisibility(View.VISIBLE);
+        portions.setVisibility(View.VISIBLE);
+        porciones.setVisibility(View.VISIBLE);
+        full.setVisibility(View.VISIBLE);
+        send.setVisibility(View.VISIBLE);
+
     }
 
 

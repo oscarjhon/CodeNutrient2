@@ -52,6 +52,14 @@ public class MainActivity extends AppCompatActivity {
                     intent = getIntent().setClass(MainActivity.this, InfoAppUserActivity.class);
                     startActivity(intent);
                     break;
+                case R.id.graficas:
+                    intent = getIntent().setClass(MainActivity.this, CalendarActivity.class);
+                    startActivity(intent);
+                    break;
+                case R.id.calendario:
+                    intent = getIntent().setClass(MainActivity.this, CalendarActivity.class);
+                    startActivity(intent);
+                    break;
             }
         }
     };

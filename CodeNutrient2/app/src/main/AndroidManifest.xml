@@ -42,6 +42,12 @@
             android:screenOrientation="portrait"
             android:parentActivityName=".Activity.MainActivity"
             android:theme="@style/AppTheme"/>
+
+        <activity android:name=".Activity.CalendarActivity"
+            android:screenOrientation="portrait"
+            android:parentActivityName=".Activity.MainActivity"
+            android:theme="@style/AppTheme"/>
+
     </application>
 
 </manifest>
