@@ -75,7 +75,7 @@
                     android:layout_margin="20dp"
                     android:drawableTop="@drawable/ic_settings_applications"
                     android:id="@+id/settings"
-                    android:text=""/>
+                    android:text="@string/menu_settings"/>
 
                 <Button
                     android:layout_width="wrap_content"
@@ -84,7 +84,7 @@
                     android:layout_margin="20dp"
                     android:drawableTop="@drawable/ic_live_help"
                     android:id="@+id/about"
-                    android:text=""/>
+                    android:text="@string/menu_about"/>
             </LinearLayout>
         </LinearLayout>
     </ScrollView>

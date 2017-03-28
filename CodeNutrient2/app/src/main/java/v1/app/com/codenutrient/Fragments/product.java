@@ -14,11 +14,14 @@ import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
+import v1.app.com.codenutrient.Activity.MainActivity;
 import v1.app.com.codenutrient.POJO.Nutrient;
 import v1.app.com.codenutrient.R;
+import v1.app.com.codenutrient.Requests.HasProduct;
 
 /**
  * Created by Arturo on 16/03/2017.
@@ -68,6 +71,7 @@ public class Product extends Fragment {
                     linear.setVisibility(View.GONE);
                     break;
                 case R.id.send_product:
+                    send.setEnabled(false);
                     if (full.isChecked()) {
                         til_op_portions.setError(null);
                         PrepareProduct(true);
@@ -106,6 +110,9 @@ public class Product extends Fragment {
                 send_nutrients.add(nutrient);
             }
             send_product.setNutrients(send_nutrients);
+            MyTask myTask = new MyTask();
+            myTask.execute(send_product);
+
         }else{
             Snackbar.make(rootView.findViewById(R.id.productCoordinator), "No se ha podido enviar la información. Intentalo de nuevo más tarde.", Snackbar.LENGTH_SHORT);
         }
@@ -133,11 +140,31 @@ public class Product extends Fragment {
         send.setVisibility(View.VISIBLE);
     }
 
+    private void postExecute(v1.app.com.codenutrient.POJO.Product product){
+        if (product.getHttpcode() == 200){
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException ignored) {}
+            Toast.makeText(getActivity().getApplicationContext(), "Se ha registrado el producto", Toast.LENGTH_SHORT).show();
+        }else{
+            Toast.makeText(getActivity().getApplicationContext(), "Ha ocurrido un error al registrar el producto", Toast.LENGTH_SHORT).show();
+        }
+        send.setEnabled(true);
+    }
+
     private class MyTask extends AsyncTask<v1.app.com.codenutrient.POJO.Product, String, v1.app.com.codenutrient.POJO.Product> {
 
         @Override
         protected v1.app.com.codenutrient.POJO.Product doInBackground(v1.app.com.codenutrient.POJO.Product[] params) {
-            return null;
+            HasProduct request = new HasProduct();
+            v1.app.com.codenutrient.POJO.Product p = new v1.app.com.codenutrient.POJO.Product();
+            p.setHttpcode(request.ExecutePost(MainActivity.appUser, params[0]));
+            return p;
+        }
+
+        @Override
+        protected void onPostExecute(v1.app.com.codenutrient.POJO.Product result) {
+            postExecute(result);
         }
     }
 

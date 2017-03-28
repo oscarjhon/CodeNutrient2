@@ -56,12 +56,12 @@ public class HasProduct {
         requestPackage.setParams("has[porciones]", product.getPorcion() + "");
         requestPackage.setParams("has[cantidad]", product.getCantidad() + "");
         requestPackage.setParams("has[calories]", product.getCalorias() + "");
-        requestPackage.setParams("has[Product]", product.getCode() + "");
-        Iterator it = product.getNutrients().iterator();
-        while (it.hasNext()) {
-            Nutrient nutrient = (Nutrient) it.next();
+        requestPackage.setParams("has[product]", product.getCode() + "");
+        for (Nutrient nutrient : product.getNutrients()) {
             requestPackage.setParams("nutrients[_" + nutrient.getNutrient_id() + "]", nutrient.getCantidad() + "");
         }
-        return new HttpManager().getData(requestPackage).code;
+        HttpManager manager = new HttpManager();
+        Response response = manager.getData(requestPackage);
+        return response.code;
     }
 }

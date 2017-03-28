@@ -5,7 +5,8 @@ import java.util.ArrayList;
 public class Product {
     private float calorias;
     private float cantidad;
-    private int code;
+    private String code;
+    private int httpcode;
     private String equivalencia;
     private String imageURL;
     private int measure_id;
@@ -34,12 +35,20 @@ public class Product {
         this.cantidad = cantidad;
     }
 
-    public int getCode() {
+    public String getCode() {
         return code;
     }
 
-    public void setCode(int code) {
+    public void setCode(String code) {
         this.code = code;
+    }
+
+    public int getHttpcode() {
+        return httpcode;
+    }
+
+    public void setHttpcode(int httpcode) {
+        this.httpcode = httpcode;
     }
 
     public String getEquivalencia() {

@@ -16,10 +16,11 @@ public class Product {
         try {
             product = new v1.app.com.codenutrient.POJO.Product();
             ArrayList<Nutrient> nutrients = new ArrayList();
-            product.setCode(response.code);
+            product.setHttpcode(response.code);
             JSONObject data = new JSONObject(response.response).getJSONObject("data");
             JSONObject attributes = data.getJSONObject("attributes");
             product.setNombre(attributes.getString("nombre"));
+            product.setCode(attributes.getString("codigo"));
             product.setCantidad((float) attributes.getDouble("cantidad"));
             product.setCalorias((float) attributes.getDouble("calorias"));
             product.setMeasure_id(attributes.getInt("measure_id"));
@@ -43,7 +44,7 @@ public class Product {
         } catch (JSONException e) {
             e.printStackTrace();
             product = new v1.app.com.codenutrient.POJO.Product();
-            product.setCode(0);
+            product.setHttpcode(0);
             return product;
         }
     }

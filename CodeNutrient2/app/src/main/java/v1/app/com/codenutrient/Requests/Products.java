@@ -18,7 +18,7 @@ public class Products {
             return new v1.app.com.codenutrient.Parser.Product().parser(res);
         }
         Product product = new Product();
-        product.setCode(res.code);
+        product.setHttpcode(res.code);
         return product;
     }
 }

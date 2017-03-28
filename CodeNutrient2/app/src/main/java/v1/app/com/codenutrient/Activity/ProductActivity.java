@@ -90,7 +90,7 @@ public class ProductActivity extends AppCompatActivity {
     public void setData() {
         reload ++;
         HttpManager manager = new HttpManager();
-        switch (product.getCode()) {
+        switch (product.getHttpcode()) {
             case 0:
                 Toast.makeText(getApplicationContext(), "Error del servidor", Toast.LENGTH_SHORT).show();
             case 200:
@@ -133,7 +133,7 @@ public class ProductActivity extends AppCompatActivity {
             presentacion.setText("Presentación: " + product.getCantidad() + cursor.getString(cursor.getColumnIndex("abreviacion")));
         }
         product_name.setText(product.getNombre());
-        product_calories.setText("Calorias: " + product.getCalorias());
+        product_calories.setText("Calorias por porción: " + product.getCalorias());
         product_portions.setText("Porciones: " + product.getPorcion());
         producct_equivalencia.setText("Equivalencia: " + product.getEquivalencia());
         Picasso.with(context).load(product.getImageURL()).into(imageView);
