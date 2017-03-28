@@ -23,8 +23,8 @@ public class Product {
             product.setCantidad((float) attributes.getDouble("cantidad"));
             product.setCalorias((float) attributes.getDouble("calorias"));
             product.setMeasure_id(attributes.getInt("measure_id"));
-            //product.setImageURL("http:" + data.getString("imageURL"));
-            product.setImageURL("http://foodapiapp.s3-us-west-1.amazonaws.com/products/images/000/000/001/mobile/LADL.png?1490501508");
+            product.setImageURL("http:" + data.getString("imageURL"));
+            //product.setImageURL("http://foodapiapp.s3-us-west-1.amazonaws.com/products/images/000/000/001/mobile/LADL.png?1490501508");
             JSONObject relations = data.getJSONObject("relations");
             JSONArray has_nutrients = relations.getJSONArray("has_nutrients");
             JSONObject portion_attr = relations.getJSONObject("portion").getJSONObject("attributes");
@@ -38,7 +38,7 @@ public class Product {
                 n.setCantidad((float) n_attributes.getDouble("cantidad"));
                 nutrients.add(n);
             }
-            product.setNutrients(nutrients);
+            product.setNutrients(nutrients.size() != 0 ? nutrients : null);
             return product;
         } catch (JSONException e) {
             e.printStackTrace();

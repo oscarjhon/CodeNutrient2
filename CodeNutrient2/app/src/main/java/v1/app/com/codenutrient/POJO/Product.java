@@ -14,6 +14,10 @@ public class Product {
     private float p_cantidad;
     private float porcion;
 
+    public Product(){
+        nutrients = null;
+    }
+
     public float getCalorias() {
         return calorias;
     }

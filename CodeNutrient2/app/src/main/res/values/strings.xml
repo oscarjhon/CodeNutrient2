@@ -24,4 +24,10 @@
     <string name="select_portions">Selecciona el número de porciones</string>
     <string name="evaluate">Evaluar consumo</string>
     <string name="register_consumption">Registrar consumo</string>
+    <string name="menu_camara">Escanear código</string>
+    <string name="menu__info">Registrar información</string>
+    <string name="menu_consultar_productos">Productos consumidos</string>
+    <string name="menu_consultar_estadisticas">Estadísticas de consumo</string>
+    <string name="menu_settings">Configuración</string>
+    <string name="menu_about">Acerca de</string>
 </resources>

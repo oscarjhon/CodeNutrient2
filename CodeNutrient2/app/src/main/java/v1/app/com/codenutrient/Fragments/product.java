@@ -1,7 +1,10 @@
 package v1.app.com.codenutrient.Fragments;
 
 import android.app.Fragment;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
+import android.support.design.widget.TextInputLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,11 +13,11 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.Spinner;
-import android.widget.Switch;
 import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import v1.app.com.codenutrient.POJO.Nutrient;
 import v1.app.com.codenutrient.R;
 
 /**
@@ -29,6 +32,9 @@ public class Product extends Fragment {
     private Spinner spinner;
     private LinearLayout linear;
     private TextView tittle, portions;
+    private v1.app.com.codenutrient.POJO.Product product;
+
+    private TextInputLayout til_op_portions;
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
         rootView = inflater.inflate(R.layout.fragment_product, container, false);
@@ -43,6 +49,7 @@ public class Product extends Fragment {
 
         linear = (LinearLayout) rootView.findViewById(R.id.linear_portions);
 
+        til_op_portions = (TextInputLayout) rootView.findViewById(R.id.til_op_portions);
         porciones.setOnClickListener(listener);
         full.setOnClickListener(listener);
         send.setOnClickListener(listener);
@@ -61,13 +68,51 @@ public class Product extends Fragment {
                     linear.setVisibility(View.GONE);
                     break;
                 case R.id.send_product:
-                    //check portions and calculate the values
+                    if (full.isChecked()) {
+                        til_op_portions.setError(null);
+                        PrepareProduct(true);
+                    }else if (porciones.isChecked()){
+                        til_op_portions.setError(null);
+                        PrepareProduct(false);
+                    }else{
+                        til_op_portions.setError("Selecciona una opción.");
+                        Snackbar.make(rootView.findViewById(R.id.productCoordinator), "Selecciona una opción.", Snackbar.LENGTH_SHORT);
+                    }
                     break;
             }
         }
     };
 
+    public void PrepareProduct(boolean full){
+        float porcion = this.product.getPorcion();
+        v1.app.com.codenutrient.POJO.Product send_product= new v1.app.com.codenutrient.POJO.Product();
+        send_product.setCode(product.getCode());
+        if (!full){
+            try {
+                porcion = Float.parseFloat(spinner.getSelectedItem().toString());
+            }catch (NumberFormatException e){
+                Snackbar.make(rootView.findViewById(R.id.productCoordinator), "No se ha podido enviar la información. Intentalo de nuevo más tarde.", Snackbar.LENGTH_SHORT);
+                return;
+            }
+        }
+        send_product.setCalorias(product.getCalorias() * porcion);
+        send_product.setCantidad((product.getCantidad() / product.getPorcion()) * porcion);
+        send_product.setPorcion(porcion);
+        if (product.getNutrients() != null){
+            ArrayList<Nutrient> nutrients = product.getNutrients();
+            ArrayList<Nutrient> send_nutrients = new ArrayList<>();
+            for (Nutrient nutrient: nutrients) {
+                nutrient.setCantidad(nutrient.getCantidad() * porcion);
+                send_nutrients.add(nutrient);
+            }
+            send_product.setNutrients(send_nutrients);
+        }else{
+            Snackbar.make(rootView.findViewById(R.id.productCoordinator), "No se ha podido enviar la información. Intentalo de nuevo más tarde.", Snackbar.LENGTH_SHORT);
+        }
+    }
+
     public void setData(v1.app.com.codenutrient.POJO.Product product){
+        this.product = product;
         if (product.getPorcion() != 1){
             ArrayList<String> portions = new ArrayList<>();
             for (int i = 1; i < product.getPorcion(); i++){
@@ -86,9 +131,14 @@ public class Product extends Fragment {
         porciones.setVisibility(View.VISIBLE);
         full.setVisibility(View.VISIBLE);
         send.setVisibility(View.VISIBLE);
-
     }
 
+    private class MyTask extends AsyncTask<v1.app.com.codenutrient.POJO.Product, String, v1.app.com.codenutrient.POJO.Product> {
 
+        @Override
+        protected v1.app.com.codenutrient.POJO.Product doInBackground(v1.app.com.codenutrient.POJO.Product[] params) {
+            return null;
+        }
+    }
 
 }

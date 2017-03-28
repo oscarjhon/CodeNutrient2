@@ -55,6 +55,7 @@ public class HasProduct {
         requestPackage.setParams("token", appUser.getToken());
         requestPackage.setParams("has[porciones]", product.getPorcion() + "");
         requestPackage.setParams("has[cantidad]", product.getCantidad() + "");
+        requestPackage.setParams("has[calories]", product.getCalorias() + "");
         requestPackage.setParams("has[Product]", product.getCode() + "");
         Iterator it = product.getNutrients().iterator();
         while (it.hasNext()) {
