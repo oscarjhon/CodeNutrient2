@@ -1,6 +1,7 @@
 package v1.app.com.codenutrient.Fragments;
 
 import android.app.Fragment;
+import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
@@ -16,9 +17,11 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 import v1.app.com.codenutrient.Activity.MainActivity;
+import v1.app.com.codenutrient.Helpers.DataBaseHelper;
 import v1.app.com.codenutrient.POJO.Nutrient;
 import v1.app.com.codenutrient.R;
 import v1.app.com.codenutrient.Requests.HasProduct;
@@ -36,6 +39,7 @@ public class Product extends Fragment {
     private LinearLayout linear;
     private TextView tittle, portions;
     private v1.app.com.codenutrient.POJO.Product product;
+    private float calories;
 
     private TextInputLayout til_op_portions;
 
@@ -58,6 +62,22 @@ public class Product extends Fragment {
         send.setOnClickListener(listener);
 
         return rootView;
+    }
+
+    public void hide(){
+        tittle.setVisibility(View.GONE);
+        portions.setVisibility(View.GONE);
+        porciones.setVisibility(View.GONE);
+        full.setVisibility(View.GONE);
+        send.setVisibility(View.GONE);
+    }
+
+    public void show(){
+        tittle.setVisibility(View.VISIBLE);
+        portions.setVisibility(View.VISIBLE);
+        porciones.setVisibility(View.VISIBLE);
+        full.setVisibility(View.VISIBLE);
+        send.setVisibility(View.VISIBLE);
     }
 
     public View.OnClickListener listener = new View.OnClickListener() {
@@ -100,6 +120,7 @@ public class Product extends Fragment {
             }
         }
         send_product.setCalorias(product.getCalorias() * porcion);
+        calories = send_product.getCalorias();
         send_product.setCantidad((product.getCantidad() / product.getPorcion()) * porcion);
         send_product.setPorcion(porcion);
         if (product.getNutrients() != null){
@@ -133,11 +154,7 @@ public class Product extends Fragment {
         }else{
             porciones.setEnabled(false);
         }
-        tittle.setVisibility(View.VISIBLE);
-        portions.setVisibility(View.VISIBLE);
-        porciones.setVisibility(View.VISIBLE);
-        full.setVisibility(View.VISIBLE);
-        send.setVisibility(View.VISIBLE);
+        show();
     }
 
     private void postExecute(v1.app.com.codenutrient.POJO.Product product){
@@ -146,6 +163,17 @@ public class Product extends Fragment {
                 Thread.sleep(2000);
             } catch (InterruptedException ignored) {}
             Toast.makeText(getActivity().getApplicationContext(), "Se ha registrado el producto", Toast.LENGTH_SHORT).show();
+            DataBaseHelper helper = new DataBaseHelper(getActivity().getApplicationContext());
+            try {
+                helper.openDataBaseReadWrite();
+                Cursor cursor = helper.fetchUser(MainActivity.appUser.getUid(), MainActivity.appUser.getProvider());
+                if (cursor != null){
+                    if (cursor.moveToFirst()){
+                        int id = cursor.getInt(cursor.getColumnIndex("id"));
+                        helper.insertCalorieHistory(id, calories);
+                    }
+                }
+            } catch (SQLException ignored) {}
         }else{
             Toast.makeText(getActivity().getApplicationContext(), "Ha ocurrido un error al registrar el producto", Toast.LENGTH_SHORT).show();
         }

@@ -13,6 +13,12 @@ public class AppUser implements Serializable {
     private String provider;
     private String uid;
 
+    private InfoAppUser infoAppUser;
+
+    public AppUser(){
+        infoAppUser = null;
+    }
+
     public String getToken() {
         return Token;
     }
@@ -67,5 +73,13 @@ public class AppUser implements Serializable {
 
     public void setUid(String uid) {
         this.uid = uid;
+    }
+
+    public InfoAppUser getInfoAppUser() {
+        return infoAppUser;
+    }
+
+    public void setInfoAppUser(InfoAppUser infoAppUser) {
+        this.infoAppUser = infoAppUser;
     }
 }

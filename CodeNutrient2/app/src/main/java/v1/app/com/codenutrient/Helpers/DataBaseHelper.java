@@ -70,10 +70,10 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     }
 
     public void createDataBase() throws IOException {
-        //if (!checkDataBase()) {
-            //getReadableDatabase().close();
+        if (!checkDataBase()) {
+            getReadableDatabase().close();
             copyDataBase();
-        //}
+        }
     }
 
     public void delete(){
@@ -154,6 +154,14 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         return cursor;
     }
 
+    public Cursor fetchNutrients() {
+        Cursor cursor = this.myDatabase.rawQuery("SELECT * FROM Nutrients", new String[0]);
+        if (cursor != null) {
+            cursor.moveToFirst();
+        }
+        return cursor;
+    }
+
     public Cursor fetchNVFemale(int edad, int em, int lac) throws SQLException {
         Cursor cursor = this.myDatabase.rawQuery("SELECT nutrient_id, value FROM NutrientValues WHERE gender = 0 AND em = ? AND lac = ? AND range_id = (SELECT id FROM Range WHERE min <=? ORDER BY min DESC Limit 1)", new String[]{"" + em, "" + lac, "" + edad});
         if (cursor != null) {
@@ -165,6 +173,14 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     public Cursor fetchNVMale(int edad) throws SQLException {
         Cursor cursor = this.myDatabase.rawQuery("SELECT nutrient_id, value FROM NutrientValues " +
                 "WHERE gender = 1 AND range_id = (SELECT id FROM Range WHERE min <= ? ORDER BY min DESC Limit 1)", new String[]{"" + edad});
+        if (cursor != null) {
+            cursor.moveToFirst();
+        }
+        return cursor;
+    }
+
+    public Cursor fetchUserDate(String uid, String provider) throws SQLException{
+        Cursor cursor = myDatabase.rawQuery("SELECT min_fecha FROM Users WHERE uid = ? AND provider = ?", new String[] {uid, provider});
         if (cursor != null) {
             cursor.moveToFirst();
         }
@@ -295,6 +311,12 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         values.put("email", email);
         values.put("name", name);
         return this.myDatabase.update("Users", values, "uid = ? AND provider = ?", new String[]{uid, provider});
+    }
+
+    public int updateUserDate(String uid, String provider){
+        ContentValues values = new ContentValues();
+        values.put("min_fecha", "2017-03-27");
+        return myDatabase.update("Users", values, "uid = ? AND provider = ?", new String[]{uid, provider});
     }
 
     public int updateUserAge(String uid, String provider, int edad) {

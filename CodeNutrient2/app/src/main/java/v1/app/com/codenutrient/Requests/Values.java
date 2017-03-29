@@ -21,8 +21,7 @@ public class Values {
             bnv_response.setCode(response.code);
             return bnv_response;
         }
-        new v1.app.com.codenutrient.Parser.Values().parser(response);
-        return null;
+        return new v1.app.com.codenutrient.Parser.Values().parser(response);
     }
 
     public BNV_response ExecutePost(BNV_response values, v1.app.com.codenutrient.POJO.AppUser appUser) {
@@ -33,7 +32,6 @@ public class Values {
         requestPackage.setParams("uid", appUser.getUid() + "");
         requestPackage.setParams("provider", appUser.getProvider());
         requestPackage.setParams("token", appUser.getToken());
-        StringBuilder stringBuilder = new StringBuilder();
         for (int i = 0; i < aux_values.size(); i++) {
             v1.app.com.codenutrient.POJO.Values value = (v1.app.com.codenutrient.POJO.Values) aux_values.get(i);
             requestPackage.setParams("best[_"+ value.getNutrient_id() + "][value]", value.getValue() + "");

@@ -63,10 +63,12 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 case R.id.graficas:
                     intent = getIntent().setClass(MainActivity.this, CalendarActivity.class);
+                    intent.putExtra("Type", false);
                     startActivity(intent);
                     break;
                 case R.id.calendario:
                     intent = getIntent().setClass(MainActivity.this, CalendarActivity.class);
+                    intent.putExtra("Type", true);
                     startActivity(intent);
                     break;
             }
@@ -75,6 +77,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void postExecute(InfoAppUser infoAppUser){
         if (infoAppUser.getCode() == 200 || infoAppUser.getCode() == 206){
+            appUser.setInfoAppUser(infoAppUser);
             Intent intent;
             intent = getIntent().setClass(MainActivity.this, CustomViewFinderScannerActivity.class);
             startActivityForResult(intent, CAMERA_INTENT);

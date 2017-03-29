@@ -26,6 +26,11 @@ import com.google.android.gms.common.api.Status;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 import v1.app.com.codenutrient.HTTP.HttpManager;
 import v1.app.com.codenutrient.Helpers.DataBaseHelper;
@@ -43,7 +48,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
     public void onCreate(Bundle saveState) {
         super.onCreate(saveState);
-        setContentView((int) R.layout.activity_login);
+        setContentView(R.layout.activity_login);
         googleSignInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
                 .build();
@@ -59,7 +64,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         progressBar = (ProgressBar) findViewById(R.id.login_bar);
         DataBaseHelper d = new DataBaseHelper(getApplicationContext());
         try {
-            d.delete();
+            //d.delete();
             d.createDataBase();
             d.openDataBaseReadWrite();
             if (d.checkMeasure()) {
@@ -120,13 +125,14 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         helper.openDataBaseReadWrite();
         if (appUser != null) {
             helper.updateUsers(token, uid, "Google", email, name);
+            //helper.updateUserDate(uid, "Google");
             helper.close();
             return getDatabaseUser(provider, uid);
         }
         if (helper.insertUsers(email, "Google", token, uid, name) == -1) {
             return null;
         }
-        helper.updateUsers(token, uid, "Google", email, name);
+        //helper.updateUserDate(uid, "Google");
         helper.close();
         return getDatabaseUser(provider, uid);
     }

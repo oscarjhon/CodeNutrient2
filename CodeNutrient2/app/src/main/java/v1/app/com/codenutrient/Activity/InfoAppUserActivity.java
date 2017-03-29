@@ -289,6 +289,7 @@ public class InfoAppUserActivity extends AppCompatActivity implements DatePicker
         switch (infoAppUser.getCode()){
             case 200:
                 //Obtener BNV
+                MainActivity.appUser.setInfoAppUser(infoAppUser);
                 Calendar hoy = Calendar.getInstance();
                 Calendar nacimiento = Calendar.getInstance();
                 nacimiento.setTime(infoAppUser.getFechaNacimiento());
@@ -325,6 +326,7 @@ public class InfoAppUserActivity extends AppCompatActivity implements DatePicker
                 }
                 break;
             case 206:
+                MainActivity.appUser.setInfoAppUser(infoAppUser);
                 ShowMessage("No se han podido registrar las enfermedades, intentalo de nuevo");
                 break;
             case 401:
@@ -510,6 +512,7 @@ public class InfoAppUserActivity extends AppCompatActivity implements DatePicker
 
     public void ShowMessage(String message){
         Snackbar.make(findViewById(R.id.info_coordinator), message, Snackbar.LENGTH_SHORT).show();
+        enableFields();
     }
 
     public void onDateSet(DatePickerDialog view, int year, int monthOfYear, int dayOfMonth) {

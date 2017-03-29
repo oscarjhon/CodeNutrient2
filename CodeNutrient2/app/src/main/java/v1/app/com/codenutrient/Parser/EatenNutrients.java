@@ -17,13 +17,16 @@ public class EatenNutrients {
         try {
             ArrayList<Nutrient> nutrients = new ArrayList();
             E_nutrients.setCode(response.code);
-            JSONArray data = new JSONObject(response.response).getJSONArray("data");
-            for (int i = 0; i < data.length(); i++) {
-                JSONObject attributes = data.getJSONObject(i).getJSONObject("attributes");
-                Nutrient nutrient = new Nutrient();
-                nutrient.setNutrient_id(attributes.getInt("nutrient_id"));
-                nutrient.setCantidad((float) attributes.getDouble("cantidad"));
-                nutrients.add(nutrient);
+            JSONObject json = new JSONObject(response.response);
+            if (json.has("data")) {
+                JSONArray data = json.getJSONArray("data");
+                for (int i = 0; i < data.length(); i++) {
+                    JSONObject attributes = data.getJSONObject(i).getJSONObject("attributes");
+                    Nutrient nutrient = new Nutrient();
+                    nutrient.setNutrient_id(attributes.getInt("nutrient_id"));
+                    nutrient.setCantidad((float) attributes.getDouble("cantidad"));
+                    nutrients.add(nutrient);
+                }
             }
             E_nutrients.setNutrients(nutrients);
             return E_nutrients;

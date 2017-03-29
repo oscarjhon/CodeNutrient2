@@ -6,6 +6,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
@@ -17,13 +18,21 @@ import android.widget.Toast;
 import com.squareup.picasso.Picasso;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
 
 import v1.app.com.codenutrient.HTTP.HttpManager;
+import v1.app.com.codenutrient.Helpers.BNVRequest;
 import v1.app.com.codenutrient.Helpers.DataBaseHelper;
 import v1.app.com.codenutrient.POJO.AppUser;
+import v1.app.com.codenutrient.POJO.BNV_response;
+import v1.app.com.codenutrient.POJO.EatenNutrients;
+import v1.app.com.codenutrient.POJO.HasProduct;
+import v1.app.com.codenutrient.POJO.Nutrient;
 import v1.app.com.codenutrient.POJO.Product;
 import v1.app.com.codenutrient.R;
 import v1.app.com.codenutrient.Requests.Products;
+import v1.app.com.codenutrient.Requests.Values;
 
 public class ProductActivity extends AppCompatActivity {
     public String code;
@@ -40,11 +49,13 @@ public class ProductActivity extends AppCompatActivity {
     public ProgressBar progressBar;
     public Button registrar;
     public v1.app.com.codenutrient.Fragments.Product fragment;
+    public boolean showed;
 
 
     public ProductActivity() {
         product = null;
         reload = 0;
+        showed = false;
     }
 
     public void onCreate(Bundle savedInstance) {
@@ -65,7 +76,7 @@ public class ProductActivity extends AppCompatActivity {
         evaluar.setOnClickListener(listener);
         registrar.setOnClickListener(listener);
         fragment = (v1.app.com.codenutrient.Fragments.Product) getFragmentManager().findFragmentById(R.id.product_fragment);
-        if (this.manager.isOnLine(getApplicationContext())) {
+        if (manager.isOnLine(getApplicationContext())) {
             new MyTask().execute(new String[0]);
             return;
         }
@@ -78,9 +89,11 @@ public class ProductActivity extends AppCompatActivity {
         public void onClick(View v) {
             switch (v.getId()) {
                 case R.id.Evaluate:
-                    Toast.makeText(getApplicationContext(), "Te recomendamos consumir este producto dado su alto contenido de calcio", Toast.LENGTH_SHORT).show();
+                    showBiginingMessage();
+                    evaluate();
                     break;
                 case R.id.register:
+                    showed = true;
                     fragment.setData(product);
                 default:
             }
@@ -125,6 +138,245 @@ public class ProductActivity extends AppCompatActivity {
         }
     }
 
+    private void evaluate (){
+        EatenNutrients eatenNutrients;
+        HasProduct hasProduct;
+        BNV_response bnv_response;
+        reload = 0;
+        if (manager.isOnLine(getApplicationContext())){
+            eatenNutrients = ExecuteEatenNutrient();
+            if (eatenNutrients != null){
+                reload = 0;
+                hasProduct = ExecuteProducts();
+                if (hasProduct != null){
+                    reload = 0;
+                    bnv_response = ExecuteBNV();
+                    if (bnv_response != null) {
+                        String calories_message = EvaluateCalories(hasProduct.getProducts(), product);
+                        //Comparar BNV con los nutrientes consumidos
+                        ArrayList<Nutrient> nombres = GetNutrientName();
+                        if (nombres!= null){
+                            switch (calories_message){
+                                case "FINE":
+                                    int nutrient = EvaluateNutrients(eatenNutrients.getNutrients(), bnv_response.getValues(), product.getNutrients());
+                                    if (nutrient == 0){
+                                        showSuccessMessage("Es recomendable que consumas una porción de este producto");
+                                    }else{
+                                        String nombre = "";
+                                        for (Nutrient nutrient1 : nombres){
+                                            if (nutrient == nutrient1.getNutrient_id()){
+                                                nombre = nutrient1.getNombre();
+                                                break;
+                                            }
+                                        }
+                                        showSuccessMessage("No es recomendable que consumas este producto debido a su alto contenido de " + nombre);
+                                    }
+                                    break;
+                                default:
+                                    showSuccessMessage("Ya has consumido más calorías de las adecuadas, puedes realizar actividad física con el fin de evitar el desbalance");
+                            }
+                        }else {
+                            showErrorMessage("4");
+                        }
+                    }else{
+                        showErrorMessage("3");
+                    }
+                }else{
+                    showErrorMessage("2");
+                }
+            }else{
+                showErrorMessage("1");
+            }
+        }else{
+            showErrorMessage("Debes tener conexión a internet");
+        }
+    }
+
+    private EatenNutrients ExecuteEatenNutrient(){
+        if (reload != 1){
+            reload ++;
+            MyGETEaten myGETEaten = new MyGETEaten();
+            EatenNutrients eatenNutrients;
+            try {
+                eatenNutrients = myGETEaten.execute().get();
+            } catch (InterruptedException | ExecutionException e) {
+                return null;
+            }
+            switch (eatenNutrients.getCode()){
+                case 200:
+                    return eatenNutrients;
+                case 206:
+                    eatenNutrients = new EatenNutrients();
+                    ArrayList<Nutrient> nutrients = new ArrayList<>();
+                    eatenNutrients.setNutrients(nutrients);
+                    return eatenNutrients;
+                case 401:
+                    reload ++;
+                    if (manager.reload(reload, getApplicationContext())) {
+                        return ExecuteEatenNutrient();
+                    } else {
+                        return null;
+                    }
+
+                default:
+                    return null;
+            }
+        }else{
+            return null;
+        }
+    }
+
+    private HasProduct ExecuteProducts(){
+        if (reload != 1){
+            reload ++;
+            MyGETProducts myGETEaten = new MyGETProducts();
+            HasProduct hasProduct;
+            try {
+                hasProduct = myGETEaten.execute().get();
+            } catch (InterruptedException | ExecutionException e) {
+                return null;
+            }
+            switch (hasProduct.getCode()){
+                case 200:
+                    return hasProduct;
+                case 206:
+                    hasProduct.setProducts(new ArrayList<Product>());
+                    return hasProduct;
+                case 401:
+                    reload ++;
+                    if (manager.reload(reload, getApplicationContext())) {
+                        return ExecuteProducts();
+                    } else {
+                        return null;
+                    }
+                default:
+                    return null;
+            }
+        }else{
+            return null;
+        }
+    }
+
+    private BNV_response ExecuteBNV(){
+        if (reload != 1){
+            reload ++;
+            MyGETBNVTask myGETBNVTask = new MyGETBNVTask();
+            BNV_response bnv_response;
+            try {
+                bnv_response = myGETBNVTask.execute().get();
+            } catch (InterruptedException | ExecutionException e) {
+                return null;
+            }
+            switch (bnv_response.getCode()){
+                case 200:
+                    return bnv_response;
+                case 401:
+                    reload ++;
+                    if (manager.reload(reload, getApplicationContext())) {
+                        return ExecuteBNV();
+                    } else {
+                        return null;
+                    }
+                default:
+                    return null;
+            }
+        }else{
+            return null;
+        }
+    }
+
+    private int EvaluateNutrients(ArrayList<Nutrient> nutrients_consumed, ArrayList<v1.app.com.codenutrient.POJO.Values> BNV, ArrayList<Nutrient> product_nutrients){
+        for (Nutrient nutrient3 : product_nutrients){
+            float cantidad = 0;
+            for (Nutrient nutrient1 : nutrients_consumed){
+                if (nutrient3.getNutrient_id() == nutrient1.getNutrient_id()) {
+                    cantidad = nutrient1.getCantidad();
+                    break;
+                }
+            }
+            for (v1.app.com.codenutrient.POJO.Values nutrient2 : BNV) {
+                if (nutrient3.getNutrient_id() == nutrient2.getNutrient_id()){
+                    if (nutrient2.getValue() < nutrient3.getCantidad() + cantidad){
+                        return nutrient2.getNutrient_id();
+                    }
+                }
+            }
+        }
+        return 0;
+    }
+
+    private ArrayList<Nutrient> GetNutrientName(){
+        DataBaseHelper helper = new DataBaseHelper(getApplicationContext());
+        try {
+            helper.openDataBaseRead();
+            Cursor cursor = helper.fetchNutrients();
+            if (cursor != null){
+                if(cursor.moveToFirst()){
+                    ArrayList<Nutrient> nutrients = new ArrayList<>();
+                    do{
+                        Nutrient nutrient = new Nutrient();
+                        nutrient.setNutrient_id(cursor.getInt(cursor.getColumnIndex("id")));
+                        nutrient.setNombre(cursor.getString(cursor.getColumnIndex("name")));
+                        nutrients.add(nutrient);
+                    }while (cursor.moveToNext());
+                    return nutrients;
+                }else{
+                    return null;
+                }
+            }else {
+                return null;
+            }
+        } catch (SQLException e) {
+            return null;
+        }
+    }
+
+    private String EvaluateCalories(ArrayList<Product> products, Product product){
+        float calories_consumed = 0;
+        for (Product product1 : products){
+            calories_consumed += product1.getCalorias();
+        }
+        if (MainActivity.appUser.getInfoAppUser().getMax_calorias() > calories_consumed + product.getCalorias()){
+            return "FINE";
+        }
+        return "BAD";
+    }
+
+    private void showBiginingMessage(){
+        Snackbar.make(findViewById(R.id.productCoordinator), "El proceso de evaluación tomara un momento, espera por favor", Snackbar.LENGTH_SHORT).show();
+        evaluar.setEnabled(false);
+        registrar.setEnabled(false);
+        if (!showed){
+            fragment.hide();
+        }
+    }
+
+    private void showSuccessMessage(String message){
+        Snackbar.make(findViewById(R.id.productCoordinator), message, Snackbar.LENGTH_LONG).show();
+        evaluar.setEnabled(true);
+        registrar.setEnabled(true);
+        if (showed){
+            fragment.show();
+        }
+    }
+
+    private void showErrorMessage(){
+        Snackbar.make(findViewById(R.id.productCoordinator), "Ocurrio un error al evaluar este producto", Snackbar.LENGTH_LONG).show();
+        evaluar.setEnabled(true);
+        registrar.setEnabled(true);
+        if (showed){
+            fragment.show();
+        }
+    }
+    private void showErrorMessage(String message){
+        Snackbar.make(findViewById(R.id.productCoordinator), message, Snackbar.LENGTH_LONG).show();
+        evaluar.setEnabled(true);
+        registrar.setEnabled(true);
+        if (showed){
+            fragment.show();
+        }
+    }
+
     public void setData(Product product, Context context) throws SQLException {
         DataBaseHelper dataBaseHelper = new DataBaseHelper(getApplicationContext());
         dataBaseHelper.openDataBaseReadWrite();
@@ -155,7 +407,8 @@ public class ProductActivity extends AppCompatActivity {
 
     private class MyTask extends AsyncTask<String, String, Product> {
 
-        public Product doInBackground(String... param) {
+        @Override
+        protected Product doInBackground(String... param) {
             Products request = new Products();
             AppUser appUser = new AppUser();
             appUser.setUid(MainActivity.appUser.getUid());
@@ -164,9 +417,37 @@ public class ProductActivity extends AppCompatActivity {
             return request.ExecuteGET(code, appUser);
         }
 
-        public void onPostExecute(Product result) {
+        @Override
+        protected void onPostExecute(Product result) {
             product = result;
             setData();
+        }
+    }
+
+    private class MyGETBNVTask extends AsyncTask<String, String, BNV_response> {
+
+        @Override
+        protected BNV_response doInBackground(String... params) {
+            Values request = new Values();
+            return request.ExecuteGET(MainActivity.appUser);
+        }
+    }
+
+    private class MyGETProducts extends AsyncTask<String, String, HasProduct>{
+
+        @Override
+        protected HasProduct doInBackground(String... params) {
+            v1.app.com.codenutrient.Requests.HasProduct request = new v1.app.com.codenutrient.Requests.HasProduct();
+            return request.ExecuteGET(MainActivity.appUser);
+        }
+    }
+
+    private class MyGETEaten extends AsyncTask<String, String, EatenNutrients>{
+
+        @Override
+        protected EatenNutrients doInBackground(String... params) {
+            v1.app.com.codenutrient.Requests.EatenNutrients request = new v1.app.com.codenutrient.Requests.EatenNutrients();
+            return request.ExecuteGET(MainActivity.appUser);
         }
     }
 
