@@ -149,7 +149,7 @@ public class Product extends Fragment {
             String [] aux_portions = new String[portions.size()];
             aux_portions = portions.toArray(aux_portions);
             ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),
-                    android.R.layout.simple_spinner_item, aux_portions);
+                    R.layout.spinner_item, aux_portions);
             spinner.setAdapter(adapter);
         }else{
             porciones.setEnabled(false);

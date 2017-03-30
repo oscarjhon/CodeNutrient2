@@ -3,15 +3,20 @@ package v1.app.com.codenutrient.Activity;
 
 import android.app.Fragment;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,6 +35,7 @@ import v1.app.com.codenutrient.POJO.EatenNutrients;
 import v1.app.com.codenutrient.POJO.HasProduct;
 import v1.app.com.codenutrient.POJO.Nutrient;
 import v1.app.com.codenutrient.POJO.Product;
+import v1.app.com.codenutrient.POJO.n2l;
 import v1.app.com.codenutrient.R;
 import v1.app.com.codenutrient.Requests.Products;
 import v1.app.com.codenutrient.Requests.Values;
@@ -50,6 +56,8 @@ public class ProductActivity extends AppCompatActivity {
     public Button registrar;
     public v1.app.com.codenutrient.Fragments.Product fragment;
     public boolean showed;
+    public int selected_portions = 0;
+    private AlertDialog alertDialog1;
 
 
     public ProductActivity() {
@@ -90,7 +98,7 @@ public class ProductActivity extends AppCompatActivity {
             switch (v.getId()) {
                 case R.id.Evaluate:
                     showBiginingMessage();
-                    evaluate();
+                    beginEvaliation();
                     break;
                 case R.id.register:
                     showed = true;
@@ -138,6 +146,49 @@ public class ProductActivity extends AppCompatActivity {
         }
     }
 
+    public void beginEvaliation(){
+        if (product.getPorcion() != 1){
+            LayoutInflater li = LayoutInflater.from(getApplicationContext());
+            View spinner_layout = li.inflate(R.layout.my_spinner, null);
+            final AlertDialog.Builder alertDialog = new AlertDialog.Builder(ProductActivity.this);
+            alertDialog.setView(spinner_layout);
+            final Spinner my_spinner = (Spinner) spinner_layout.findViewById(R.id.spinner_portions);
+            ArrayList<String> portions = new ArrayList<>();
+            for (int i = 1; i < product.getPorcion(); i++){
+                portions.add("" + i);
+            }
+            String [] aux_portions = new String[portions.size()];
+            aux_portions = portions.toArray(aux_portions);
+            ArrayAdapter<String> adapter = new ArrayAdapter<String>(getApplicationContext(),
+                    R.layout.spinner_item, aux_portions);
+            my_spinner.setAdapter(adapter);
+            alertDialog.setPositiveButton("Evaluar", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    selected_portions = Integer.parseInt(my_spinner.getSelectedItem().toString());
+                    alertDialog1.dismiss();
+                    evaluate();
+
+                }
+            });
+            alertDialog.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    showErrorMessage("Proceso cancelado");
+                    alertDialog1.dismiss();
+                }
+            });
+            alertDialog.setTitle("Selecciona el numero de porciones a evaluar");
+            alertDialog1 = alertDialog.create();
+            alertDialog1.show();
+            alertDialog1.setCanceledOnTouchOutside(false);
+
+        }else{
+            selected_portions = 1;
+            evaluate();
+        }
+    }
+
     private void evaluate (){
         EatenNutrients eatenNutrients;
         HasProduct hasProduct;
@@ -159,8 +210,14 @@ public class ProductActivity extends AppCompatActivity {
                             switch (calories_message){
                                 case "FINE":
                                     int nutrient = EvaluateNutrients(eatenNutrients.getNutrients(), bnv_response.getValues(), product.getNutrients());
+                                    try {
+                                        Thread.sleep(5000);
+                                    } catch (InterruptedException ignored) {}
                                     if (nutrient == 0){
-                                        showSuccessMessage("Es recomendable que consumas una porción de este producto");
+                                        if (selected_portions != 1)
+                                            showSuccessMessage("Es recomendable que consumas "+ new n2l().convertirLetras(selected_portions) + " porciones de este producto");
+                                        else
+                                            showSuccessMessage("Es recomendable que consumas una porción de este producto");
                                     }else{
                                         String nombre = "";
                                         for (Nutrient nutrient1 : nombres){
@@ -169,23 +226,27 @@ public class ProductActivity extends AppCompatActivity {
                                                 break;
                                             }
                                         }
-                                        showSuccessMessage("No es recomendable que consumas este producto debido a su alto contenido de " + nombre);
+                                        if (selected_portions != 1) {
+                                            showSuccessMessage("No es recomendable que consumas " + new n2l().convertirLetras(selected_portions) + " porciones de este producto debido a su alto contenido de " + nombre);
+                                        }else{
+                                            showSuccessMessage("No es recomendable que consumas ni una porcion de este producto debido a su alto contenido de " + nombre);
+                                        }
                                     }
                                     break;
                                 default:
                                     showSuccessMessage("Ya has consumido más calorías de las adecuadas, puedes realizar actividad física con el fin de evitar el desbalance");
                             }
                         }else {
-                            showErrorMessage("4");
+                            showErrorMessage();
                         }
                     }else{
-                        showErrorMessage("3");
+                        showErrorMessage();
                     }
                 }else{
-                    showErrorMessage("2");
+                    showErrorMessage();
                 }
             }else{
-                showErrorMessage("1");
+                showErrorMessage();
             }
         }else{
             showErrorMessage("Debes tener conexión a internet");
@@ -296,7 +357,7 @@ public class ProductActivity extends AppCompatActivity {
             }
             for (v1.app.com.codenutrient.POJO.Values nutrient2 : BNV) {
                 if (nutrient3.getNutrient_id() == nutrient2.getNutrient_id()){
-                    if (nutrient2.getValue() < nutrient3.getCantidad() + cantidad){
+                    if (nutrient2.getValue() < (nutrient3.getCantidad() * selected_portions) + cantidad){
                         return nutrient2.getNutrient_id();
                     }
                 }
@@ -336,17 +397,17 @@ public class ProductActivity extends AppCompatActivity {
         for (Product product1 : products){
             calories_consumed += product1.getCalorias();
         }
-        if (MainActivity.appUser.getInfoAppUser().getMax_calorias() > calories_consumed + product.getCalorias()){
+        if (MainActivity.appUser.getInfoAppUser().getMax_calorias() > calories_consumed + (product.getCalorias() * selected_portions)){
             return "FINE";
         }
         return "BAD";
     }
 
     private void showBiginingMessage(){
-        Snackbar.make(findViewById(R.id.productCoordinator), "El proceso de evaluación tomara un momento, espera por favor", Snackbar.LENGTH_SHORT).show();
+        Snackbar.make(findViewById(R.id.productCoordinator), "El proceso de evaluación tomara un momento, espera por favor", Snackbar.LENGTH_LONG).show();
         evaluar.setEnabled(false);
         registrar.setEnabled(false);
-        if (!showed){
+        if (showed){
             fragment.hide();
         }
     }
