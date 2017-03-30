@@ -14,6 +14,8 @@ public class Product {
     private ArrayList<Nutrient> nutrients;
     private float p_cantidad;
     private float porcion;
+    private String date;
+    private String measure_name;
 
     public Product(){
         nutrients = null;
@@ -105,5 +107,21 @@ public class Product {
 
     public void setPorcion(float porcion) {
         this.porcion = porcion;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
+
+    public String getMeasure_name() {
+        return measure_name;
+    }
+
+    public void setMeasure_name(String measure_name) {
+        this.measure_name = measure_name;
     }
 }
