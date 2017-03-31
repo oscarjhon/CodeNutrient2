@@ -34,7 +34,7 @@ public class MyNutrientAdapter extends RecyclerView.Adapter<MyNutrientAdapter.Nu
     public void onBindViewHolder(NutrientViewHolder holder, int position) {
         holder.nutrient_name.setText(my_data.get(position).getNutrient_name());
         holder.nutrient_consumed.setText("Cantidad consumida: " + my_data.get(position).getNutrient_consumed() + my_data.get(position).getNutrient_measure_name());
-        holder.nutrient_recomended.setText("Cantidad recomendada: " + my_data.get(position).getNutrient_consumed() + my_data.get(position).getNutrient_measure_name());
+        holder.nutrient_recomended.setText("Cantidad recomendada: " + my_data.get(position).getNutrient_recomended() + my_data.get(position).getNutrient_measure_name());
         holder.nutrient_resume.setText(my_data.get(position).getNutrient_resume());
     }
 

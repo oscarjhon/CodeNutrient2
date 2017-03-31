@@ -114,7 +114,7 @@ public class CalendarActivity extends AppCompatActivity {
         beginTransaction();
         if (manager.isOnLine(this)) {
             MyTaskNutrient myTaskNutrient = new MyTaskNutrient();
-            myTaskNutrient.execute();
+            myTaskNutrient.execute(selected_date);
         }else{
             ShowErrorMesaage("Debes tener conexión a internet para realizar esta acción");
         }
@@ -247,7 +247,7 @@ public class CalendarActivity extends AppCompatActivity {
                         Nutrient n = new Nutrient();
                         n.setNutrient_id(cursorNutrients.getInt(cursorNutrients.getColumnIndex("id")));
                         n.setNombre(cursorNutrients.getString(cursorNutrients.getColumnIndex("name")));
-                        n.setNutrient_id(cursorNutrients.getInt(cursorNutrients.getColumnIndex("measure_id")));
+                        n.setMeasure_id(cursorNutrients.getInt(cursorNutrients.getColumnIndex("measure_id")));
                         nutrients.add(n);
                     }while (cursorNutrients.moveToNext());
                     ArrayList<Measure> measures = new ArrayList<>();
@@ -258,97 +258,104 @@ public class CalendarActivity extends AppCompatActivity {
                         measures.add(m);
                     }while(cursorMeasures.moveToNext());
                     ArrayList<Item_nutrient> items = new ArrayList<>();
-                    for (Nutrient eaten : eatenNutrients.getNutrients()){
+                    for (v1.app.com.codenutrient.POJO.Values v : bnv.getValues()){
                         Item_nutrient item = new Item_nutrient();
-                        item.setNutrient_consumed(eaten.getCantidad());
-                        for (Nutrient n : nutrients){
-                            if (eaten.getNutrient_id() == n.getNutrient_id()){
+                        boolean finded = false;
+                        item.setNutrient_recomended(v.getValue());
+                        for (Nutrient eaten : eatenNutrients.getNutrients()) {
+                            if (eaten.getNutrient_id() == v.getNutrient_id()) {
+                                finded = true;
+                                item.setNutrient_consumed(eaten.getCantidad());
+                                break;
+                            }
+                        }
+                        for (Nutrient n : nutrients) {
+                            if(v.getNutrient_id() == n.getNutrient_id()) {
                                 item.setNutrient_name(n.getNombre());
-                            }
-                            for (Measure m : measures){
-                                if (m.getMeasure_id() == eaten.getMeasure_id()){
-                                    item.setNutrient_measure_name(m.getMeasure_name());
+                                for (Measure m : measures) {
+                                    if (m.getMeasure_id() == n.getMeasure_id()) {
+                                        item.setNutrient_measure_name(m.getMeasure_name());
+                                    }
                                 }
                             }
-                            for (v1.app.com.codenutrient.POJO.Values v : bnv.getValues()){
-                                if(n.getNutrient_id() == v.getNutrient_id()){
-                                    item.setNutrient_recomended(v.getValue());
+                        }
+                        if (!finded) {
+                            item.setNutrient_consumed(0);
+                        }
+                        if(v.getNutrient_id() <= 9 || v.getNutrient_id() == 19 && v.getNutrient_id() != 1 && v.getNutrient_id() != 3 && v.getNutrient_id() !=8){
+                            if ((int)item.getNutrient_consumed() > (int)item.getNutrient_recomended()){
+                                switch (MainActivity.appUser.getInfoAppUser().getIMCNormal()){
+                                    case "BAJO":
+                                        item.setNutrient_resume("No es muy recomendable que consumas en exceso esta sustancias");
+                                        break;
+                                    case "NORMAL":
+                                        item.setNutrient_resume("Te recomendamos reducir el consumo de esta sustancias si quieres evitar padecer de obesidad");
+                                        break;
+                                    case "SOBREPESO":
+                                        item.setNutrient_resume("Es muy recomendable que disminuyas el consumo de esta sustancias con el fin de reducir tu IMC");
+                                        break;
+                                    case "OBESIDAD":
+                                        item.setNutrient_resume("Debes procurar consumir lo mínimo de esta sustancia, no es adecuado para tu salud");
+                                        break;
+                                    default:
+                                        item.setNutrient_resume("Es imprecindible que evites el consumo de esta sustancia ya que podría llegar a causarte serios problemas de salud");
+                                        break;
                                 }
-                            }
-
-                            if(n.getNutrient_id() <= 9 || n.getNutrient_id() == 19 && n.getNutrient_id() != 1 && n.getNutrient_id() != 3){
-                                if ((int)item.getNutrient_consumed() > (int)item.getNutrient_recomended()){
-                                    switch (MainActivity.appUser.getInfoAppUser().getIMCNormal()){
-                                        case "BAJO":
-                                            item.setNutrient_resume("No es muy recomendable que consumas en exceso esta sustancias");
-                                            break;
-                                        case "NORMAL":
-                                            item.setNutrient_resume("Te recomendamos reducir el consumo de esta sustancias si quieres evitar padecer de obesidad");
-                                            break;
-                                        case "SOBREPESO":
-                                            item.setNutrient_resume("Es muy recomendable que disminuyas el consumo de esta sustancias con el fin de reducir tu IMC");
-                                            break;
-                                        case "OBESIDAD":
-                                            item.setNutrient_resume("Debes procurar consumir lo mínimo de esta sustancia, no es adecuado para tu salud");
-                                            break;
-                                        default:
-                                            item.setNutrient_resume("Es imprecindible que evites el consumo de esta sustancia ya que podría llegar a causarte serios problemas de salud");
-                                            break;
-                                    }
-                                }else if ((int)item.getNutrient_consumed() < (int) item.getNutrient_recomended()){
-                                    switch (MainActivity.appUser.getInfoAppUser().getIMCNormal()){
-                                        case "BAJO":
-                                            item.setNutrient_resume("Tu consumo de esta sustancia esta por debajo del adecuado produra aumentar ligeramente el consumo para evitar algunas enfermedades");
-                                            break;
-                                        case "NORMAL":
-                                            item.setNutrient_resume("Te recomendamos evitar la falta de esta sustancia podría ser perjudicial a largo plazo");
-                                            break;
-                                        case "SOBREPESO":
-                                            item.setNutrient_resume("Es recomendable que sigas disminuyendo ligeramente el consumo de esta sustancia");
-                                            break;
-                                        case "OBESIDAD":
-                                            item.setNutrient_resume("Te sugerimos que disminuyas adecuadamente el consumo de esta sustancia");
-                                            break;
-                                        default:
-                                            item.setNutrient_resume("Es imprecindible que continues disminuyendo ligeramente el consumo de esta sustencia");
-                                            break;
-                                    }
-                                }else{
-                                    switch (MainActivity.appUser.getInfoAppUser().getIMCNormal()){
-                                        case "BAJO":
-                                            item.setNutrient_resume("Procura mantener o aumenter ligeramente el consumo de esta sustancia");
-                                            break;
-                                        case "NORMAL":
-                                            item.setNutrient_resume("Bien, has consumido tu valor adecuado");
-                                            break;
-                                        case "SOBREPESO":
-                                            item.setNutrient_resume("Bien has consumido lo adecuado para esta sustencia, procura mantener y disminuir ligeramente tu consumo");
-                                            break;
-                                        case "OBESIDAD":
-                                            item.setNutrient_resume("Te sugerimos que disminuyas adecuadamente el consumo de esta sustancia");
-                                            break;
-                                        default:
-                                            item.setNutrient_resume("Es imprecindible que continues disminuyendo ligeramente el consumo de esta sustencia");
-                                            break;
-                                    }
+                            }else if ((int)item.getNutrient_consumed() < (int) item.getNutrient_recomended()){
+                                switch (MainActivity.appUser.getInfoAppUser().getIMCNormal()){
+                                    case "BAJO":
+                                        item.setNutrient_resume("Tu consumo de esta sustancia esta por debajo del adecuado produra aumentar ligeramente el consumo para evitar algunas enfermedades");
+                                        break;
+                                    case "NORMAL":
+                                        item.setNutrient_resume("Te recomendamos evitar la falta de esta sustancia podría ser perjudicial a largo plazo");
+                                        break;
+                                    case "SOBREPESO":
+                                        item.setNutrient_resume("Es recomendable que sigas disminuyendo ligeramente el consumo de esta sustancia");
+                                        break;
+                                    case "OBESIDAD":
+                                        item.setNutrient_resume("Te sugerimos que disminuyas adecuadamente el consumo de esta sustancia");
+                                        break;
+                                    default:
+                                        item.setNutrient_resume("Es imprecindible que continues disminuyendo ligeramente el consumo de esta sustencia");
+                                        break;
                                 }
                             }else{
-                                if(item.getNutrient_recomended() <= 5){
-                                    if (item.getNutrient_consumed() > item.getNutrient_recomended()){
-                                       item.setNutrient_resume("El consumo excesivo de este nutriente puede llegar a cuasar algunas enfermedades, te recomendamos que disminuyas el consumo del mismo");
-                                    }else if (item.getNutrient_consumed() < item.getNutrient_recomended()){
-                                        item.setNutrient_resume("Es recomendable que consumas la cantidad adecuada de este nutriente para mantenerte saludable");
-                                    }else{
-                                        item.setNutrient_resume("Has consumido la cantidad adecuada de este nutriente sigue así");
-                                    }
+                                switch (MainActivity.appUser.getInfoAppUser().getIMCNormal()){
+                                    case "BAJO":
+                                        item.setNutrient_resume("Procura mantener o aumenter ligeramente el consumo de esta sustancia");
+                                        break;
+                                    case "NORMAL":
+                                        item.setNutrient_resume("Bien, has consumido tu valor adecuado");
+                                        break;
+                                    case "SOBREPESO":
+                                        item.setNutrient_resume("Bien has consumido lo adecuado para esta sustencia, procura mantener y disminuir ligeramente tu consumo");
+                                        break;
+                                    case "OBESIDAD":
+                                        item.setNutrient_resume("Te sugerimos que disminuyas adecuadamente el consumo de esta sustancia");
+                                        break;
+                                    default:
+                                        item.setNutrient_resume("Es imprecindible que continues disminuyendo ligeramente el consumo de esta sustencia");
+                                        break;
+                                }
+                            }
+                        }else if (v.getNutrient_id() == 8) {
+                            item.setNutrient_resume("Esta sustancia debe ser evitada por completo, el consumo recomendado debe ser tu máximo consumo, es MUY importante que te mantegas por debajo del mismo");
+                        }else{
+                            if(item.getNutrient_recomended() <= 5){
+                                if (item.getNutrient_consumed() > item.getNutrient_recomended()){
+                                   item.setNutrient_resume("El consumo excesivo de este nutriente puede llegar a cuasar algunas enfermedades, te recomendamos que disminuyas el consumo del mismo");
+                                }else if (item.getNutrient_consumed() < item.getNutrient_recomended()){
+                                    item.setNutrient_resume("Es recomendable que consumas la cantidad adecuada de este nutriente para mantenerte saludable");
                                 }else{
-                                    if ((int)item.getNutrient_consumed() > (int)item.getNutrient_recomended()){
-                                        item.setNutrient_resume("El consumo excesivo de este nutriente puede llegar a cuasar algunas enfermedades, te recomendamos que disminuyas el consumo del mismo");
-                                    }else if ((int)item.getNutrient_consumed() < (int) item.getNutrient_recomended()){
-                                        item.setNutrient_resume("Es recomendable que consumas la cantidad adecuada de este nutriente para mantenerte saludable");
-                                    }else{
-                                        item.setNutrient_resume("Has consumido la cantidad adecuada de este nutriente sigue así");
-                                    }
+                                    item.setNutrient_resume("Has consumido la cantidad adecuada de este nutriente sigue así");
+                                }
+                            }else{
+                                if ((int)item.getNutrient_consumed() > (int)item.getNutrient_recomended()){
+                                    item.setNutrient_resume("El consumo excesivo de este nutriente puede llegar a cuasar algunas enfermedades, te recomendamos que disminuyas el consumo del mismo");
+                                }else if ((int)item.getNutrient_consumed() < (int) item.getNutrient_recomended()){
+                                    item.setNutrient_resume("Es recomendable que consumas la cantidad adecuada de este nutriente para mantenerte saludable");
+                                }else{
+                                    item.setNutrient_resume("Has consumido la cantidad adecuada de este nutriente sigue así");
                                 }
                             }
                         }
@@ -405,20 +412,24 @@ public class CalendarActivity extends AppCompatActivity {
             v1.app.com.codenutrient.Requests.HasProduct request = new v1.app.com.codenutrient.Requests.HasProduct();
             ArrayList<HasProduct> hasProducts = new ArrayList<>();
             for (CalendarDay day : params[0]){
-                final HasProduct hasProduct;
+                HasProduct hasProduct;
                 if (day.getCalendar().equals(today)) {
                     hasProduct = request.ExecuteGET(MainActivity.appUser);
                     if (hasProduct.getCode() == 200 || hasProduct.getCode() == 404){
                         hasProducts.add(hasProduct);
                     }else{
-                        return new ArrayList<HasProduct>(){{add(hasProduct);}};
+                        ArrayList<HasProduct> aux = new ArrayList<>();
+                        aux.add(hasProduct);
+                        return aux;
                     }
                 }else {
                     hasProduct = request.ExecuteGET(MainActivity.appUser, day.getDate());
                     if (hasProduct.getCode() == 200 || hasProduct.getCode() == 404){
                         hasProducts.add(hasProduct);
                     }else{
-                        return new ArrayList<HasProduct>(){{add(hasProduct);}};
+                        ArrayList<HasProduct> aux = new ArrayList<>();
+                        aux.add(hasProduct);
+                        return aux;
                     }
                 }
             }
