@@ -25,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
     public Button cuenta;
     public Button graficas;
     public Button settings;
+    public int selected;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,19 +48,43 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onClick(View v) {
             Intent intent;
-            HttpManager manager = new HttpManager();
+            selected = v.getId();
             switch (v.getId()) {
                 case R.id.camara:
-                    if (manager.isOnLine(getApplicationContext())) {
-                        MyTaskGET myTaskGET = new MyTaskGET();
-                        myTaskGET.execute();
-                    }else {
-                        Snackbar.make(findViewById(R.id.main_coordinator), "Debes tneer conexión a internet para utilizar esta función", Snackbar.LENGTH_SHORT).show();
-                    }
+                    isManagerOnline();
                     break;
                 case R.id.cuenta:
                     intent = getIntent().setClass(MainActivity.this, InfoAppUserActivity.class);
                     startActivity(intent);
+                    break;
+                case R.id.graficas:
+                    isManagerOnline();
+                    break;
+                case R.id.calendario:
+                    isManagerOnline();
+                    break;
+            }
+        }
+    };
+
+    public void isManagerOnline(){
+        HttpManager manager = new HttpManager();
+        if (manager.isOnLine(getApplicationContext())) {
+            MyTaskGET myTaskGET = new MyTaskGET();
+            myTaskGET.execute();
+        }else {
+            Snackbar.make(findViewById(R.id.main_coordinator), "Debes tneer conexión a internet para utilizar esta función", Snackbar.LENGTH_SHORT).show();
+        }
+    }
+
+    private void postExecute(InfoAppUser infoAppUser){
+        if (infoAppUser.getCode() == 200 || infoAppUser.getCode() == 206){
+            appUser.setInfoAppUser(infoAppUser);
+            Intent intent;
+            switch (selected) {
+                case R.id.camara:
+                    intent = getIntent().setClass(MainActivity.this, CustomViewFinderScannerActivity.class);
+                    startActivityForResult(intent, CAMERA_INTENT);
                     break;
                 case R.id.graficas:
                     intent = getIntent().setClass(MainActivity.this, CalendarActivity.class);
@@ -72,15 +97,6 @@ public class MainActivity extends AppCompatActivity {
                     startActivity(intent);
                     break;
             }
-        }
-    };
-
-    private void postExecute(InfoAppUser infoAppUser){
-        if (infoAppUser.getCode() == 200 || infoAppUser.getCode() == 206){
-            appUser.setInfoAppUser(infoAppUser);
-            Intent intent;
-            intent = getIntent().setClass(MainActivity.this, CustomViewFinderScannerActivity.class);
-            startActivityForResult(intent, CAMERA_INTENT);
         }else{
             Snackbar.make(findViewById(R.id.main_coordinator), "Registra tu información personal para utilizar esta opción", Snackbar.LENGTH_SHORT).show();
         }

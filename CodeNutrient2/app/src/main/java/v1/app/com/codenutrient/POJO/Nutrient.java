@@ -4,6 +4,7 @@ public class Nutrient {
     private float cantidad;
     private int nutrient_id;
     private String nombre;
+    private int measure_id;
 
     public float getCantidad() {
         return cantidad;
@@ -27,5 +28,13 @@ public class Nutrient {
 
     public void setNombre(String nombre) {
         this.nombre = nombre;
+    }
+
+    public int getMeasure_id() {
+        return measure_id;
+    }
+
+    public void setMeasure_id(int measure_id) {
+        this.measure_id = measure_id;
     }
 }

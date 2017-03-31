@@ -24,6 +24,7 @@ public class InfoAppUser{
             infoAppUser.setFechaNacimiento(new SimpleDateFormat("yyyy-MM-dd").parse(attributes.getString("fecha_nacimiento")));
             infoAppUser.setPeso((float) attributes.getDouble("peso"));
             infoAppUser.setEstatura((float) attributes.getDouble("estatura"));
+            infoAppUser.CalculateIMC();
             infoAppUser.setSexo(attributes.getBoolean("sexo"));
             infoAppUser.setMax_calorias((float) attributes.getDouble("max_calorias"));
             infoAppUser.setMin_calorias((float) attributes.getDouble("min_calorias"));

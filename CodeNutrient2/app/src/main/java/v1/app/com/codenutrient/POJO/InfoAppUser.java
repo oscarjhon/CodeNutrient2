@@ -20,6 +20,8 @@ public class InfoAppUser {
     private boolean sexo;
     private int edad;
 
+    private float IMC;
+
     public InfoAppUser() {
         diseases = null;
         Errors = null;
@@ -130,5 +132,21 @@ public class InfoAppUser {
             anio --;
         }
         return anio;
+    }
+
+    public void CalculateIMC(){
+        IMC = peso / (float) Math.pow((estatura/100), 2);
+    }
+
+    public String getIMCNormal(){
+        if (IMC < 18)
+            return "BAJO";
+        if (IMC < 25 )
+            return "NORMAL";
+        if (IMC < 30)
+            return "SOBREPESO";
+        if (IMC < 40)
+            return "OBESIDAD";
+        return "MORBIDA";
     }
 }
