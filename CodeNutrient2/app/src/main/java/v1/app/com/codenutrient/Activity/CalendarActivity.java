@@ -185,7 +185,7 @@ public class CalendarActivity extends AppCompatActivity {
                     EndRequest();
                     lManager = new LinearLayoutManager(this);
                     recycler.setLayoutManager(lManager);
-                    MyProductAdapter adapter = new MyProductAdapter(hasProducts.get(0).getProducts(), this);
+                    MyProductAdapter adapter = new MyProductAdapter(SetMeasureName(hasProducts.get(0).getProducts()), this);
                     recycler.setAdapter(adapter);
                     break;
                 case 401:
@@ -211,7 +211,7 @@ public class CalendarActivity extends AppCompatActivity {
             for (HasProduct product : hasProducts){
                 if (product.getCode() == 200){
                     ArrayList<Product> productos = product.getProducts();
-                    products.addAll(productos);
+                    products.addAll(SetMeasureName(productos));
                 }
             }
             EndRequest();
@@ -221,6 +221,42 @@ public class CalendarActivity extends AppCompatActivity {
             recycler.setAdapter(adapter);
         }
 
+    }
+
+    private ArrayList<Product> SetMeasureName(ArrayList<Product> products){
+        ArrayList<Product> aux = new ArrayList<>();
+        DataBaseHelper helper = new DataBaseHelper(getApplicationContext());
+        try {
+            helper.openDataBaseRead();
+            Cursor cursor = helper.fetchMeasures();
+            ArrayList<Measure> measures = new ArrayList<>();
+            if (cursor != null){
+                if (cursor.moveToFirst()){
+                    do{
+                        Measure m = new Measure();
+                        m.setMeasure_id(cursor.getInt(cursor.getColumnIndex("id")));
+                        m.setMeasure_name(cursor.getString(cursor.getColumnIndex("abreviacion")));
+                        measures.add(m);
+                    }while (cursor.moveToNext());
+                }else{
+                    return products;
+                }
+            }else{
+                return products;
+            }
+            for (Product p : products){
+                for (Measure m : measures){
+                    if (m.getMeasure_id() == p.getMeasure_id()){
+                        p.setMeasure_name(m.getMeasure_name());
+                        aux.add(p);
+                        break;
+                    }
+                }
+            }
+            return aux;
+        } catch (SQLException e) {
+            return products;
+        }
     }
 
     private void RecyclerNutrient(EatenNutrients eatenNutrients){

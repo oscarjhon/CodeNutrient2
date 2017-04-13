@@ -30,6 +30,7 @@ public class HasProduct {
                     product.setCalorias((float) (has_attributes.getDouble("porciones") * j_product_attributes.getDouble("calorias")));
                     product.setCode(j_product_attributes.getString("codigo"));
                     product.setDate(j_product_attributes.getString("created_at"));
+                    product.setMeasure_id(has_attributes.getInt("measure_id"));
                     product.setImageURL("http:" + j_product.getString("imageURL"));
                     products.add(product);
                 }

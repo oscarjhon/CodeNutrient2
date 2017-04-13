@@ -121,7 +121,7 @@ public class Product extends Fragment {
         }
         send_product.setCalorias(product.getCalorias() * porcion);
         calories = send_product.getCalorias();
-        send_product.setCantidad((product.getCantidad() / product.getPorcion()) * porcion);
+        send_product.setCantidad(product.getP_cantidad() * porcion);
         send_product.setPorcion(porcion);
         if (product.getNutrients() != null){
             ArrayList<Nutrient> nutrients = product.getNutrients();

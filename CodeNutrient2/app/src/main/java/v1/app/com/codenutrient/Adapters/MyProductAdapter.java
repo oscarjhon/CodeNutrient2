@@ -42,7 +42,7 @@ public class MyProductAdapter extends RecyclerView.Adapter<MyProductAdapter.Prod
         holder.product_name.setText(my_data.get(position).getNombre());
         holder.product_portions.setText("Porciones consumidas: " + my_data.get(position).getPorcion());
         holder.product_calories.setText("Calorias consumidas: " + my_data.get(position).getCalorias());
-        holder.product_content.setText("Contenido: " + my_data.get(position).getCantidad());
+        holder.product_content.setText("Contenido consumido: " + my_data.get(position).getCantidad() + my_data.get(position).getMeasure_name());
         holder.product_date.setText("Consumido el: " + my_data.get(position).getDate().substring(0,9));
         Picasso.with(context)
                 .load(my_data.get(position).getImageURL())
