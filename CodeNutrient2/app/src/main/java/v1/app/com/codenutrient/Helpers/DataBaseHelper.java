@@ -196,7 +196,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     }
 
     public Cursor fetchSteps(int user_id) {
-        Cursor cursor = this.myDatabase.rawQuery("SELECT SUM(steps) AS steps FROM Steps WHERE user_id = ? GROUP BY fecha ORDER BY fecha DESC limit 30", new String[]{"" + user_id});
+        Cursor cursor = this.myDatabase.rawQuery("SELECT SUM(steps) AS steps, fecha  FROM Steps WHERE user_id = ? GROUP BY fecha ORDER BY fecha DESC limit 31", new String[]{"" + user_id});
         if (cursor != null) {
             cursor.moveToFirst();
         }

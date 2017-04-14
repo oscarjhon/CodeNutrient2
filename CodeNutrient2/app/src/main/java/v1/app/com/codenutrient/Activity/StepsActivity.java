@@ -1,6 +1,9 @@
 package v1.app.com.codenutrient.Activity;
 
+import android.database.Cursor;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
@@ -8,9 +11,21 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
 import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.Description;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
 
+import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
+import v1.app.com.codenutrient.HTTP.HttpManager;
+import v1.app.com.codenutrient.Helpers.DataBaseHelper;
+import v1.app.com.codenutrient.POJO.StepEntries;
 import v1.app.com.codenutrient.R;
 
 /**
@@ -21,7 +36,8 @@ public class StepsActivity extends AppCompatActivity {
 
     private Spinner spinner;
     private LineChart lineChart;
-    private int days;
+    private int days, month;
+    private HttpManager manager;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,17 +50,180 @@ public class StepsActivity extends AppCompatActivity {
         spinner.setAdapter(adapter);
         spinner.setOnItemSelectedListener(new SpinnerEvent());
         days = Calendar.getInstance().getActualMaximum(Calendar.DAY_OF_MONTH);
+        month = Calendar.getInstance().get(Calendar.MONTH);
+
+        manager = new HttpManager();
     }
 
     private void PrepareRequest(int position){
         spinner.setEnabled(false);
         switch(position){
             case 1:
+                if (manager.isOnLine(getApplicationContext())){
+
+                }else{
+                    ShowErrorMessage("Debes tener conexión a internet para consultar esta información");
+                }
                 break;
             case 2:
+                if (manager.isOnLine(getApplicationContext())){
+
+                }else{
+                    ShowErrorMessage("Debes tener conexión a internet para consultar esta información");
+                }
                 break;
             case 3:
+                new GetSteps().steps();
                 break;
+        }
+    }
+
+    public void passStepEntryesToList(ArrayList<StepEntries> entries, String message){
+        List<Entry> entryList = new ArrayList<>();
+        for (int i = 1; i <= days; i++){
+            Calendar cal = Calendar.getInstance();
+            cal.set(Calendar.DAY_OF_MONTH, i);
+            boolean isSet = false;
+            for (int j = 0; j < entries.size(); j++){
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTime(entries.get(j).getDay());
+                if (cal.equals(calendar)){
+                    isSet = true;
+                    entryList.add(new Entry(i, entries.get(j).getValue()));
+                    entries.remove(j);
+                }
+            }
+            if (!isSet){
+                entryList.add(new Entry(i, 0));
+            }
+        }
+        ShowSuccess(entryList, message);
+    }
+
+    public void ShowErrorMessage(String message){
+        Snackbar.make(findViewById(R.id.steps_coordinator), message, Snackbar.LENGTH_LONG);
+    }
+
+    public String GetMonthName(){
+        switch (month){
+            case 0:
+                return "Enero";
+            case 1:
+                return "Febrero";
+            case 2:
+                return "Marzo";
+            case 3:
+                return "Abril";
+            case 4:
+                return  "Mayo";
+            case 5:
+                return "Junio";
+            case 6:
+                return "Julio";
+            case 7:
+                return "Agosto";
+            case 8:
+                return "Septiembre";
+            case 9:
+                return "Octubre";
+            case 10:
+                return "Noviembre";
+            default:
+                return "Diciembre";
+        }
+    }
+
+    public void ShowSuccess(List<Entry> entries, String label){
+        LineDataSet dataSet = new LineDataSet(entries, label);
+        dataSet.setColor(R.color.colorPrimaryDark);
+        dataSet.setValueTextColor(R.color.colorPrimaryLight);
+        LineData data = new LineData(dataSet);
+        Description description = new Description();
+        description.setText(label);
+        description.setTextSize(10);
+        description.setTextColor(R.color.primaryText);
+        lineChart.setData(data);
+        lineChart.invalidate();
+        lineChart.notifyDataSetChanged();
+        lineChart.setDescription(description);
+        lineChart.setScaleEnabled(true);
+        lineChart.setPinchZoom(false);
+        lineChart.setDoubleTapToZoomEnabled(true);
+    }
+
+    public class GetSteps{
+        public void steps(){
+            DataBaseHelper helper = new DataBaseHelper(getApplicationContext());
+            try {
+                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+                helper.openDataBaseRead();
+                Cursor cursor = helper.fetchUser(MainActivity.appUser.getUid(), MainActivity.appUser.getProvider());
+                if (cursor != null){
+                    if (cursor.moveToFirst()){
+                        int id = cursor.getInt(cursor.getColumnIndex("id"));
+                        cursor = helper.fetchSteps(id);
+                        if (cursor != null){
+                            ArrayList<StepEntries> stepEntries = new ArrayList<>();
+                            if (cursor.moveToFirst()){
+                                do{
+                                    StepEntries entry = new StepEntries();
+                                    entry.setDay(format.parse(cursor.getString(cursor.getColumnIndex("fecha"))));
+                                    entry.setValue(cursor.getFloat(cursor.getColumnIndex("steps")));
+                                    stepEntries.add(entry);
+                                }while (cursor.moveToNext());
+                                invertArray(stepEntries);
+                            }else{
+                                ShowErrorMessage("Aun no se han registrado ninguna actividad");
+                            }
+                        }else{
+                            ShowErrorMessage("Ocurrio un error inesperado, vuelve a intentarlo más tarde");
+                        }
+                    }else{
+                        ShowErrorMessage("Ocurrio un error inesperado, vuelve a intentarlo más tarde");
+                    }
+                }else{
+                    ShowErrorMessage("Ocurrio un error inesperado, vuelve a intentarlo más tarde");
+                }
+            } catch (SQLException | ParseException e) {
+                ShowErrorMessage("Ocurrio un error inesperado, vuelve a intentarlo más tarde");
+            }
+        }
+    }
+
+    public void invertArray(ArrayList<StepEntries> entries){
+        ArrayList<StepEntries> entries1 = new ArrayList<>();
+        for (int i = 1; i <= days; i++){
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(Calendar.DAY_OF_MONTH, i);
+            for (StepEntries entry : entries){
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(entry.getDay());
+                if (cal.equals(calendar)){
+                    entries1.add(entry);
+                }
+            }
+        }
+        passStepEntryesToList(entries1, "Pasos recorridos en " + GetMonthName());
+    }
+
+    public class GetProducts extends  AsyncTask<String, String, ArrayList<StepEntries>> {
+
+        @Override
+        protected ArrayList<StepEntries> doInBackground(String... params) {
+            return new ArrayList<>();
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<StepEntries> entries) {
+            super.onPostExecute(entries);
+        }
+    }
+
+    public class GetCalories extends AsyncTask<String, String, ArrayList<StepEntries>>{
+
+        @Override
+        protected ArrayList<StepEntries> doInBackground(String... params) {
+            return new ArrayList<>();
         }
     }
 
