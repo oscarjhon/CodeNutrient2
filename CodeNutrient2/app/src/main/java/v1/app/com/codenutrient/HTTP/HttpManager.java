@@ -12,7 +12,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.concurrent.ExecutionException;
 
-import v1.app.com.codenutrient.Activity.MainActivity;
+import v1.app.com.codenutrient.Activities.MainActivity;
 import v1.app.com.codenutrient.Helpers.ReloadUser;
 import v1.app.com.codenutrient.Helpers.UserRequests;
 import v1.app.com.codenutrient.POJO.AppUser;

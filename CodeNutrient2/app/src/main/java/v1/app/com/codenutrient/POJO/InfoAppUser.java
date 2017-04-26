@@ -134,6 +134,28 @@ public class InfoAppUser {
         return anio;
     }
 
+
+    public float getRMR(){
+        /**
+         * RMR(Kcal/día)=66.4730+(13.7516*p)+(5.003*s)-(6.7550*e) Hombre
+         * RMR(Kcal/día)=665.0955+(9.5634*p)+(1.8496*s)-(4.6756*e) Mujer
+         */
+        if (isSexo()){
+            return (float) (66.4730 + (13.7516 * getPeso()) + (5.003 * getEstatura())
+                    - (6.7550 * edad ));
+        }else {
+            float RMR = (float) (665.0955 + (9.5634 * getPeso()) + (1.8496 * getEstatura())
+                    - (4.6756 * edad));
+            if (isEmbarazo()){
+                RMR += 300;
+            } else if (isLactancia()){
+                RMR += 500;
+            }
+            return RMR;
+        }
+    }
+
+
     public void CalculateIMC(){
         IMC = peso / (float) Math.pow((estatura/100), 2);
     }

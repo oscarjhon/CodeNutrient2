@@ -6,7 +6,7 @@ import android.database.Cursor;
 
 import java.sql.SQLException;
 
-import v1.app.com.codenutrient.Activity.MainActivity;
+import v1.app.com.codenutrient.Activities.MainActivity;
 import v1.app.com.codenutrient.POJO.AppUser;
 
 public class ReloadUser {

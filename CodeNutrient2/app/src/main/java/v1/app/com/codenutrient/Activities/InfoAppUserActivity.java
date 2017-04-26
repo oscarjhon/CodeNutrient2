@@ -1,4 +1,4 @@
-package v1.app.com.codenutrient.Activity;
+package v1.app.com.codenutrient.Activities;
 
 
 import android.os.AsyncTask;
@@ -382,28 +382,13 @@ public class InfoAppUserActivity extends AppCompatActivity implements DatePicker
     }
 
     public InfoAppUser Calories(InfoAppUser infoAppUser){
-        /**
-         * RMR(Kcal/día)=66.4730+(13.7516*p)+(5.003*s)-(6.7550*e)
-         * RMR(Kcal/día)=665.0955+(9.5634*p)+(1.8496*s)-(4.6756*e)
-         */
         Calendar hoy = Calendar.getInstance();
         Calendar nacimiento = Calendar.getInstance();
         nacimiento.setTime(infoAppUser.getFechaNacimiento());
         float RMR;
         int edad = infoAppUser.getYear(hoy, nacimiento);
         infoAppUser.setEdad(edad);
-        if (infoAppUser.isSexo()){
-            RMR = (float) (66.4730 + (13.7516 * infoAppUser.getPeso()) + (5.003 * infoAppUser.getEstatura())
-                                - (6.7550 * edad ));
-        }else {
-            RMR = (float) (665.0955 + (9.5634 * infoAppUser.getPeso()) + (1.8496 * infoAppUser.getEstatura())
-                    - (4.6756 * edad));
-            if (infoAppUser.isEmbarazo()){
-                RMR += 300;
-            } else if (infoAppUser.isLactancia()){
-                RMR += 500;
-            }
-        }
+        RMR = infoAppUser.getRMR();
         DataBaseHelper helper = new DataBaseHelper(getApplicationContext());
         try {
             helper.openDataBaseReadWrite();

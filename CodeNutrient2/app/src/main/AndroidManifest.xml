@@ -15,7 +15,7 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".Activity.SplashScreenActivity"
+        <activity android:name=".Activities.SplashScreenActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme">
             <intent-filter>
@@ -25,32 +25,45 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".Activity.LoginActivity"
+        <activity android:name=".Activities.LoginActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme"/>
 
-        <activity android:name=".Activity.MainActivity"
+        <activity android:name=".Activities.MainActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme" />
-        <activity android:name=".Activity.CustomViewFinderScannerActivity"
+        <activity android:name=".Activities.CustomViewFinderScannerActivity"
             android:theme="@style/AppTheme"/>
-        <activity android:name=".Activity.ProductActivity"
+        <activity android:name=".Activities.ProductActivity"
             android:screenOrientation="portrait"
-            android:parentActivityName=".Activity.MainActivity"
+            android:parentActivityName=".Activities.MainActivity"
             android:theme="@style/AppTheme"/>
-        <activity android:name=".Activity.InfoAppUserActivity"
+        <activity android:name=".Activities.InfoAppUserActivity"
             android:screenOrientation="portrait"
-            android:parentActivityName=".Activity.MainActivity"
+            android:parentActivityName=".Activities.MainActivity"
             android:theme="@style/AppTheme"/>
 
-        <activity android:name=".Activity.CalendarActivity"
+        <activity android:name=".Activities.CalendarActivity"
             android:screenOrientation="portrait"
-            android:parentActivityName=".Activity.MainActivity"
+            android:parentActivityName=".Activities.MainActivity"
             android:theme="@style/AppTheme"/>
-        <activity android:name=".Activity.StepsActivity"
+        <activity android:name=".Activities.StepsActivity"
             android:screenOrientation="portrait"
-            android:parentActivityName=".Activity.MainActivity"
+            android:parentActivityName=".Activities.MainActivity"
             android:theme="@style/AppTheme"/>
+
+        <service
+            android:name=".Services.Pedometer"
+            android:enabled="true" />
+
+        <receiver android:name=".Services.SensorRestarterBroadcastReciver"
+            android:enabled="true"
+            android:exported="true"
+            android:label="RestartServiceWhenStoped">
+            <intent-filter>
+                <action android:name="RestartSensor"/>
+            </intent-filter>
+        </receiver>
 
     </application>
 

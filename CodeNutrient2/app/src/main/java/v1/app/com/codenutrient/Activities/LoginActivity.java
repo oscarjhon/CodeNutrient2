@@ -1,4 +1,4 @@
-package v1.app.com.codenutrient.Activity;
+package v1.app.com.codenutrient.Activities;
 
 
 import android.content.Intent;
@@ -26,11 +26,6 @@ import com.google.android.gms.common.api.Status;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
 
 import v1.app.com.codenutrient.HTTP.HttpManager;
 import v1.app.com.codenutrient.Helpers.DataBaseHelper;
@@ -129,9 +124,11 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
             helper.close();
             return getDatabaseUser(provider, uid);
         }
-        if (helper.insertUsers(email, "Google", token, uid, name) == -1) {
+        long id = helper.insertUsers(email, "Google", token, uid, name);
+        if (id  == -1) {
             return null;
         }
+        helper.insertMETS(id);
         //helper.updateUserDate(uid, "Google");
         helper.close();
         return getDatabaseUser(provider, uid);

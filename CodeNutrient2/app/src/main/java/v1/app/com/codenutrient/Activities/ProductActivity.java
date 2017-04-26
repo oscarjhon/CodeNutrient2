@@ -1,7 +1,6 @@
-package v1.app.com.codenutrient.Activity;
+package v1.app.com.codenutrient.Activities;
 
 
-import android.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.database.Cursor;
@@ -27,7 +26,6 @@ import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 
 import v1.app.com.codenutrient.HTTP.HttpManager;
-import v1.app.com.codenutrient.Helpers.BNVRequest;
 import v1.app.com.codenutrient.Helpers.DataBaseHelper;
 import v1.app.com.codenutrient.POJO.AppUser;
 import v1.app.com.codenutrient.POJO.BNV_response;

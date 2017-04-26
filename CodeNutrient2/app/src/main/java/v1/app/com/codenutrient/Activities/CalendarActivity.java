@@ -1,9 +1,8 @@
-package v1.app.com.codenutrient.Activity;
+package v1.app.com.codenutrient.Activities;
 
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -11,12 +10,10 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.CalendarMode;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
-import com.prolificinteractive.materialcalendarview.OnDateSelectedListener;
 
 import java.sql.SQLException;
 import java.text.DateFormat;
@@ -25,7 +22,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Formatter;
 import java.util.List;
 import java.util.Locale;
 
@@ -33,8 +29,6 @@ import v1.app.com.codenutrient.Adapters.MyNutrientAdapter;
 import v1.app.com.codenutrient.Adapters.MyProductAdapter;
 import v1.app.com.codenutrient.HTTP.HttpManager;
 import v1.app.com.codenutrient.Helpers.DataBaseHelper;
-import v1.app.com.codenutrient.Helpers.ReloadUser;
-import v1.app.com.codenutrient.Helpers.UserRequests;
 import v1.app.com.codenutrient.POJO.BNV_response;
 import v1.app.com.codenutrient.POJO.EatenNutrients;
 import v1.app.com.codenutrient.POJO.HasProduct;

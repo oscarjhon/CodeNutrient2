@@ -114,8 +114,8 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         return cursor;
     }
 
-    public Cursor fetchCalorieHistoryByDate(int user_id, String min_date, String max_date) {
-        Cursor cursor = this.myDatabase.rawQuery("SELECT calories, datetime, id FROM CalorieHistory WHERE datetime >= '?' AND datetime <= '?'", new String[]{min_date + " 00:00:00", max_date + " 23:59:59", "" + user_id});
+    public Cursor fetchCalorieHistoryByDate(int user_id, String date) {
+        Cursor cursor = this.myDatabase.rawQuery("SELECT calories, Date(datetime) as fecha, id FROM CalorieHistory WHERE fecha = ? AND user_id = ?", new String[]{date, "" + user_id});
         if (cursor != null) {
             cursor.moveToFirst();
         }
@@ -196,20 +196,29 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     }
 
     public Cursor fetchSteps(int user_id) {
-        Cursor cursor = this.myDatabase.rawQuery("SELECT SUM(steps) AS steps, fecha  FROM Steps WHERE user_id = ? GROUP BY fecha ORDER BY fecha DESC limit 31", new String[]{"" + user_id});
+        Cursor cursor = this.myDatabase.rawQuery("SELECT SUM(steps) AS steps, Date(fecha) as fecha   FROM Steps WHERE user_id = ? GROUP BY fecha ORDER BY fecha DESC limit 31", new String[]{"" + user_id});
         if (cursor != null) {
             cursor.moveToFirst();
         }
         return cursor;
     }
 
-    public Cursor fetchStepsNotSended(int user_id, String date) {
-        Cursor cursor = this.myDatabase.rawQuery("SELECT SUM(calories) AS Calories FROM Steps WHERE sended = 0 AND fecha = '?' AND user_id = ?", new String[]{date, "" + user_id});
+    public Cursor fetchCaloriesNotSended(int user_id) {
+        Cursor cursor = this.myDatabase.rawQuery("SELECT SUM(calories) AS calories, Date (datetime) as fecha FROM CalorieHistory WHERE sended = 0 AND user_id = ? ORDER  BY fecha", new String[]{"" + user_id});
         if (cursor != null) {
             cursor.moveToFirst();
         }
         return cursor;
     }
+
+    public Cursor fetchUserId(String provider, String uid){
+        return myDatabase.rawQuery("SELECT id FROM Users WHERE uid = ? AND provider = ?", new String[]{uid, provider});
+    }
+
+    public Cursor fetchUserEdad(String uid, String provider){
+        return myDatabase.rawQuery("SELECT edad FROM Users WHERE uid = ? AND provider = ?", new String[]{uid, provider});
+    }
+
 
     public Cursor fetchUser(String uid, String provider) {
         Cursor cursor = this.myDatabase.rawQuery("SELECT * FROM Users WHERE uid = ? AND provider = ?", new String[]{uid, provider});
@@ -234,11 +243,10 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         return this.myDatabase.insert("CalorieHistory", null, values);
     }
 
-    public long insertSteps(int user_id, int steps, float calories) {
+    public long insertSteps(int user_id, int steps) {
         ContentValues values = new ContentValues();
         values.put("user_id", user_id);
         values.put("steps", steps);
-        values.put("calories", calories);
         return this.myDatabase.insert("Steps", null, values);
     }
 
@@ -257,6 +265,12 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         values.put("user_id", user_id);
         values.put("weigth", weigth);
         return this.myDatabase.insert("WeigthHistory", null, values);
+    }
+
+    public long insertMETS(long id){
+       ContentValues values = new ContentValues();
+        values.put("user_id", id);
+        return myDatabase.insert("Mets", null, values);
     }
 
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
@@ -283,11 +297,11 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         myDatabase = SQLiteDatabase.openDatabase(DB_PATH, null, SQLiteDatabase.OPEN_READWRITE);
     }
 
-    public int updateStepsSended(Date fecha, int user_id) {
+    public int updateCaloriesSended(Date fecha, int user_id) {
         ContentValues values = new ContentValues();
         values.put("sended", true);
         Format formatter = new SimpleDateFormat("yyyy-MM-DD");
-        return this.myDatabase.update("Steps", values, "user_id = ? AND fecha = ? ", new String[]{"" + user_id, formatter.format(fecha)});
+        return this.myDatabase.update("CalorieHistory", values, "user_id = ? AND fecha = ? ", new String[]{"" + user_id, formatter.format(fecha)});
     }
 
     public int updateUserCalories(String uid, String provider, float calories) {

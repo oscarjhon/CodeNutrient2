@@ -1,4 +1,4 @@
-package v1.app.com.codenutrient.Activity;
+package v1.app.com.codenutrient.Activities;
 
 
 import android.support.v7.app.AppCompatActivity;

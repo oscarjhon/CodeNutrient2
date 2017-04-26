@@ -20,7 +20,7 @@ import android.widget.Toast;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-import v1.app.com.codenutrient.Activity.MainActivity;
+import v1.app.com.codenutrient.Activities.MainActivity;
 import v1.app.com.codenutrient.Helpers.DataBaseHelper;
 import v1.app.com.codenutrient.POJO.Nutrient;
 import v1.app.com.codenutrient.R;

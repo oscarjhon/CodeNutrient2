@@ -2,7 +2,7 @@ package v1.app.com.codenutrient.Helpers;
 
 import android.os.AsyncTask;
 
-import v1.app.com.codenutrient.Activity.MainActivity;
+import v1.app.com.codenutrient.Activities.MainActivity;
 import v1.app.com.codenutrient.POJO.BNV_response;
 import v1.app.com.codenutrient.Requests.Values;
 
