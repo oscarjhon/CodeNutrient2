@@ -1,12 +1,14 @@
 package v1.app.com.codenutrient.POJO;
 
+import java.io.Serializable;
+
 /**
  * Created by Arturo on 26/04/2017.
  * This code was made for the project CodeNutrient.
  */
-public class StepCounters {
-    public  static int walking, running, jogging;
-    public  static long w_time, r_time, j_time;
+public class StepCounters  implements Serializable{
+    public int walking, running, jogging;
+    public long w_time, r_time, j_time;
 
     public StepCounters() {
         walking = 0;

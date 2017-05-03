@@ -1,6 +1,7 @@
 package v1.app.com.codenutrient.Activities;
 
-
+import android.app.ActivityManager;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.AsyncTask;
@@ -16,11 +17,11 @@ import java.util.Calendar;
 import v1.app.com.codenutrient.HTTP.HttpManager;
 import v1.app.com.codenutrient.Helpers.DataBaseHelper;
 import v1.app.com.codenutrient.Helpers.ReloadBNV;
-import v1.app.com.codenutrient.Helpers.ReloadUser;
 import v1.app.com.codenutrient.POJO.AppUser;
 import v1.app.com.codenutrient.POJO.BNV_response;
 import v1.app.com.codenutrient.POJO.InfoAppUser;
 import v1.app.com.codenutrient.R;
+import v1.app.com.codenutrient.Services.Pedometer;
 
 public class MainActivity extends AppCompatActivity {
     public static AppUser appUser;
@@ -34,6 +35,8 @@ public class MainActivity extends AppCompatActivity {
     public int selected;
     public int reload;
     public HttpManager manager;
+    public Intent mServiceIntent;
+    private Pedometer service;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,6 +53,22 @@ public class MainActivity extends AppCompatActivity {
         this.calendario.setOnClickListener(onClickListener);
         this.settings.setOnClickListener(onClickListener);
         this.about.setOnClickListener(onClickListener);
+        service = new Pedometer();
+        mServiceIntent = new Intent(this, service.getClass());
+        if (!isMyServiceRunning(service.getClass())){
+            startService(mServiceIntent);
+        }
+        //Enviar pasos y calorias si las hay
+    }
+
+    public boolean isMyServiceRunning(Class<?> serviceClass){
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)){
+            if (serviceClass.getName().equals(service.service.getClassName())){
+                return true;
+            }
+        }
+        return false;
     }
 
     private View.OnClickListener onClickListener = new View.OnClickListener() {
@@ -145,7 +164,32 @@ public class MainActivity extends AppCompatActivity {
                          */
                         MainActivity.appUser.getInfoAppUser().setEdad(edad);
                         float RMR = MainActivity.appUser.getInfoAppUser().getRMR();
+                        /**
+                         * Actuializar METS
+                         */
+                        double RMR_passed = (((RMR/1440)/5)/MainActivity.appUser.getInfoAppUser().getPeso()) * 1000;
+                        float caminar = (float) ((float) (3.3 * 3.5) / RMR_passed);
+                        float trotar = (float) ((float) (5 * 3.5) / RMR_passed);
+                        float correr = (float) ((float) (9 * 3.5) / RMR_passed);
                         helper.updateUserCalories(MainActivity.appUser.getUid(), MainActivity.appUser.getProvider(), RMR);
+                        if(helper.checkMETS(MainActivity.appUser.getProvider(), MainActivity.appUser.getUid())){
+                            //Actualizar METS
+                            helper.updateMETS(MainActivity.appUser.getUid(), MainActivity.appUser.getProvider(), caminar, trotar, correr);
+                        }else{
+                            //REGISTRAR METS
+                            Cursor cursor = helper.fetchUserId(MainActivity.appUser.getProvider(), MainActivity.appUser.getUid());
+                            if (cursor != null && cursor.moveToFirst()){
+                                long id = cursor.getLong(cursor.getColumnIndex("id"));
+                                helper.insertMETS(id, caminar, trotar, correr);
+                            }
+                        }
+                        helper.updateUserAge(MainActivity.appUser.getUid(), MainActivity.appUser.getProvider(), edad);
+                        if (MainActivity.appUser.getInfoAppUser().isSexo()){
+                            helper.updateUserRangeMale(MainActivity.appUser.getUid(), MainActivity.appUser.getProvider(), edad);
+                        }else{
+                            helper.updateUserRangeFemale(MainActivity.appUser.getUid(), MainActivity.appUser.getProvider(), edad, MainActivity.appUser.getInfoAppUser().isEmbarazo() ? 1:0, MainActivity.appUser.getInfoAppUser().isLactancia() ? 1:0);
+                        }
+                        helper.close();
                         MyTaskUpdate update = new MyTaskUpdate();
                         update.execute();
                     }
@@ -159,21 +203,35 @@ public class MainActivity extends AppCompatActivity {
 
     public void postExecuteUpdate(InfoAppUser infoAppUser){
         if (infoAppUser.getCode() == 200 || infoAppUser.getCode() == 206) {
-            ReloadBNV reloadBNV = new ReloadBNV();
-            BNV_response response = reloadBNV.reload(MainActivity.appUser.getInfoAppUser(), getApplicationContext());
-            if (response.getCode() == 200){
-                lastPostExecute();
-            }else if(response.getCode() == 401){
-                if(manager.reload(1, getApplicationContext())){
-                    response = reloadBNV.reload(MainActivity.appUser.getInfoAppUser(), getApplicationContext());
-                    if (response.getCode() == 200) {
+            MainActivity.appUser.setInfoAppUser(infoAppUser);
+            Calendar calendar = Calendar.getInstance();
+            Calendar nacimiento = Calendar.getInstance();
+            nacimiento.setTime(MainActivity.appUser.getInfoAppUser().getFechaNacimiento());
+            switch (MainActivity.appUser.getInfoAppUser().getYear(calendar, nacimiento)){
+                case 19:
+                case 31:
+                case 51:
+                case 70:
+                    ReloadBNV reloadBNV = new ReloadBNV();
+                    BNV_response response = reloadBNV.reload(MainActivity.appUser.getInfoAppUser(), getApplicationContext());
+                    if (response.getCode() == 200){
                         lastPostExecute();
-                    }else{
-                        ShowErrorMessage("Ocurrio un error al actualizar tu información");
+                    }else if(response.getCode() == 401){
+                        if(manager.reload(1, getApplicationContext())){
+                            response = reloadBNV.reload(MainActivity.appUser.getInfoAppUser(), getApplicationContext());
+                            if (response.getCode() == 200) {
+                                lastPostExecute();
+                            }else{
+                                ShowErrorMessage("Ocurrio un error al actualizar tu información");
+                            }
+                        }else{
+                            ShowErrorMessage("Ocurrio un error al iniciar sesión");
+                        }
                     }
-                }else{
-                    ShowErrorMessage("Ocurrio un error al iniciar sesión");
-                }
+                    break;
+                default:
+                    lastPostExecute();
+
             }
         }else if (infoAppUser.getCode() == 401){
             if (manager.reload(reload, getApplicationContext())){

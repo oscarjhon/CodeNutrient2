@@ -1,6 +1,7 @@
 package v1.app.com.codenutrient.Activities;
 
 
+import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
@@ -297,7 +298,26 @@ public class InfoAppUserActivity extends AppCompatActivity implements DatePicker
                 ShowMessage("Espera mientras se calcula tu información de consumo");
                 DataBaseHelper helper = new DataBaseHelper(getApplicationContext());
                 try {
-                    helper.openDataBaseRead();
+                    helper.openDataBaseReadWrite();
+                    /**
+                     * Calcular valores MET
+                     */
+                    float RMR = MainActivity.appUser.getInfoAppUser().getMax_calorias();
+                    double RMR_passed = (((RMR/1440)/5)/MainActivity.appUser.getInfoAppUser().getPeso()) * 1000;
+                    float caminar = (float) ((float) (3.3 * 3.5) / RMR_passed);
+                    float trotar = (float) ((float) (5 * 3.5) / RMR_passed);
+                    float correr = (float) ((float) (9 * 3.5) / RMR_passed);
+                    if(helper.checkMETS(MainActivity.appUser.getProvider(), MainActivity.appUser.getUid())){
+                        //Actualizar METS
+                        helper.updateMETS(MainActivity.appUser.getUid(), MainActivity.appUser.getProvider(), caminar, trotar, correr);
+                    }else{
+                        //REGISTRAR METS
+                        Cursor cursor = helper.fetchUserId(MainActivity.appUser.getProvider(), MainActivity.appUser.getUid());
+                        if (cursor != null && cursor.moveToFirst()){
+                            long id = cursor.getLong(cursor.getColumnIndex("id"));
+                            helper.insertMETS(id, caminar, trotar, correr);
+                        }
+                    }
                     response = new BNV_response();
                     if(infoAppUser.isSexo()){
                         response = response.passCursorToValue(infoAppUser, helper.fetchNVMale(infoAppUser.getEdad()));
@@ -423,7 +443,6 @@ public class InfoAppUserActivity extends AppCompatActivity implements DatePicker
         info_progress.setVisibility(View.GONE);
         scroll.setVisibility(View.VISIBLE);
     }
-
 
     public void fulled(InfoAppUser infoAppUser) {
         switch (infoAppUser.getCode()) {

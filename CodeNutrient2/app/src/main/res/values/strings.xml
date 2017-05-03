@@ -34,6 +34,7 @@
     <string name="single_date">Selecciona una fecha</string>
     <string name="range_dates">Selecciona un rango de fechas</string>
     <string name="step_tittle">Resumen mensual</string>
+    <string name="logout">Cerrar sesión</string>
     <string-array name="steps_spinner">
         <item>-</item>
         <item>Calorías consumidas</item>

@@ -34,7 +34,7 @@ import v1.app.com.codenutrient.R;
 
 public class LoginActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
     private int RC_SIGN_IN;
-    private GoogleApiClient googleApiClient;
+    public static GoogleApiClient googleApiClient;
     private GoogleSignInOptions googleSignInOptions;
     public ImageView image;
     public ProgressBar progressBar;
@@ -90,7 +90,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     }
 
     public void onStop() {
-        this.googleApiClient.disconnect();
+        googleApiClient.disconnect();
         super.onStop();
     }
 
@@ -146,7 +146,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
 
     private void disconect() {
-        Auth.GoogleSignInApi.signOut(this.googleApiClient).setResultCallback(new ResultCallback<Status>() {
+        Auth.GoogleSignInApi.signOut(googleApiClient).setResultCallback(new ResultCallback<Status>() {
             @Override
             public void onResult(@NonNull Status status) {
             }
@@ -231,7 +231,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     }
 
     private void signIn() {
-        startActivityForResult(Auth.GoogleSignInApi.getSignInIntent(this.googleApiClient), this.RC_SIGN_IN);
+        startActivityForResult(Auth.GoogleSignInApi.getSignInIntent(googleApiClient), this.RC_SIGN_IN);
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {

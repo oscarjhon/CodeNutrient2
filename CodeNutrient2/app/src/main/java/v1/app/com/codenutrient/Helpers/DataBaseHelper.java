@@ -26,7 +26,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     public DataBaseHelper(Context context) {
         super(context, DB_NAME, null, 2);
         this.myContext = context;
-        DB_PATH = this.myContext.getDatabasePath(DB_NAME).getPath();
+        DB_PATH = myContext.getDatabasePath(DB_NAME).getPath();
     }
 
     public boolean checkDataBase() {
@@ -35,7 +35,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     }
 
     public boolean checkMeasure() {
-        Cursor cursor = this.myDatabase.rawQuery("select DISTINCT tbl_name from sqlite_master where tbl_name = 'measures'", null);
+        Cursor cursor = myDatabase.rawQuery("select DISTINCT tbl_name from sqlite_master where tbl_name = 'measures'", null);
         if (cursor != null) {
             if (cursor.getCount() > 0) {
                 cursor.close();
@@ -53,7 +53,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     }
 
     public void copyDataBase() throws IOException {
-        InputStream myInput = this.myContext.getAssets().open(DB_NAME);
+        InputStream myInput = myContext.getAssets().open(DB_NAME);
         OutputStream myOutput = new FileOutputStream(DB_PATH);
         byte[] buffer = new byte[1024];
         while (true) {
@@ -107,7 +107,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     }
 
     public Cursor fetchBeneficiosName(int nutrient_id) {
-        Cursor cursor = this.myDatabase.rawQuery("SELECT r.beneficios AS beneficios, n.name AS name FROM Recomendations r INNER JOIN Nutrients n ON r.nutrient_id = n.id WHERE n.id = ? AND r.beneficios != 'NONE'", new String[]{"" + nutrient_id});
+        Cursor cursor = myDatabase.rawQuery("SELECT r.beneficios AS beneficios, n.name AS name FROM Recomendations r INNER JOIN Nutrients n ON r.nutrient_id = n.id WHERE n.id = ? AND r.beneficios != 'NONE'", new String[]{"" + nutrient_id});
         if (cursor != null) {
             cursor.moveToFirst();
         }
@@ -115,7 +115,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     }
 
     public Cursor fetchCalorieHistoryByDate(int user_id, String date) {
-        Cursor cursor = this.myDatabase.rawQuery("SELECT calories, Date(datetime) as fecha, id FROM CalorieHistory WHERE fecha = ? AND user_id = ?", new String[]{date, "" + user_id});
+        Cursor cursor = myDatabase.rawQuery("SELECT calories, Date(datetime) as fecha, id FROM CalorieHistory WHERE fecha = ? AND user_id = ?", new String[]{date, "" + user_id});
         if (cursor != null) {
             cursor.moveToFirst();
         }
@@ -123,7 +123,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     }
 
     public Cursor fetchDeficienciaName(int nutrient_id) {
-        Cursor cursor = this.myDatabase.rawQuery("SELECT r.deficiencia AS deficiencia, n.name AS name FROM Recomendations r INNER JOIN Nutrients n ON r.nutrient_id = n.id WHERE n.id = ? AND r.deficiencia != 'NONE'", new String[]{"" + nutrient_id});
+        Cursor cursor = myDatabase.rawQuery("SELECT r.deficiencia AS deficiencia, n.name AS name FROM Recomendations r INNER JOIN Nutrients n ON r.nutrient_id = n.id WHERE n.id = ? AND r.deficiencia != 'NONE'", new String[]{"" + nutrient_id});
         if (cursor != null) {
             cursor.moveToFirst();
         }
@@ -131,7 +131,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     }
 
     public Cursor fetchExcesoName(int nutrient_id) {
-        Cursor cursor = this.myDatabase.rawQuery("SELECT r.exceso AS exceso, n.name AS name FROM Recomendations r INNER JOIN Nutrients n ON r.nutrient_id = n.id WHERE n.id = ? AND r.exceso != 'NONE'", new String[]{"" + nutrient_id});
+        Cursor cursor = myDatabase.rawQuery("SELECT r.exceso AS exceso, n.name AS name FROM Recomendations r INNER JOIN Nutrients n ON r.nutrient_id = n.id WHERE n.id = ? AND r.exceso != 'NONE'", new String[]{"" + nutrient_id});
         if (cursor != null) {
             cursor.moveToFirst();
         }
@@ -139,7 +139,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     }
 
     public Cursor fetchMeasure(int measure_id) {
-        Cursor cursor = this.myDatabase.rawQuery("SELECT * FROM measures WHERE id = ?", new String[]{"" + measure_id});
+        Cursor cursor = myDatabase.rawQuery("SELECT * FROM measures WHERE id = ?", new String[]{"" + measure_id});
         if (cursor != null) {
             cursor.moveToFirst();
         }
@@ -147,7 +147,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     }
 
     public Cursor fetchMeasures() {
-        Cursor cursor = this.myDatabase.rawQuery("SELECT * FROM measures", new String[0]);
+        Cursor cursor = myDatabase.rawQuery("SELECT * FROM measures", new String[0]);
         if (cursor != null) {
             cursor.moveToFirst();
         }
@@ -155,7 +155,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     }
 
     public Cursor fetchNutrients() {
-        Cursor cursor = this.myDatabase.rawQuery("SELECT * FROM Nutrients", new String[0]);
+        Cursor cursor = myDatabase.rawQuery("SELECT * FROM Nutrients", new String[0]);
         if (cursor != null) {
             cursor.moveToFirst();
         }
@@ -163,7 +163,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     }
 
     public Cursor fetchNVFemale(int edad, int em, int lac) throws SQLException {
-        Cursor cursor = this.myDatabase.rawQuery("SELECT nutrient_id, value FROM NutrientValues WHERE gender = 0 AND em = ? AND lac = ? AND range_id = (SELECT id FROM Range WHERE min <=? ORDER BY min DESC Limit 1)", new String[]{"" + em, "" + lac, "" + edad});
+        Cursor cursor = myDatabase.rawQuery("SELECT nutrient_id, value FROM NutrientValues WHERE gender = 0 AND em = ? AND lac = ? AND range_id = (SELECT id FROM Range WHERE min <=? ORDER BY min DESC Limit 1)", new String[]{"" + em, "" + lac, "" + edad});
         if (cursor != null) {
             cursor.moveToFirst();
         }
@@ -171,7 +171,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     }
 
     public Cursor fetchNVMale(int edad) throws SQLException {
-        Cursor cursor = this.myDatabase.rawQuery("SELECT nutrient_id, value FROM NutrientValues " +
+        Cursor cursor = myDatabase.rawQuery("SELECT nutrient_id, value FROM NutrientValues " +
                 "WHERE gender = 1 AND range_id = (SELECT id FROM Range WHERE min <= ? ORDER BY min DESC Limit 1)", new String[]{"" + edad});
         if (cursor != null) {
             cursor.moveToFirst();
@@ -188,7 +188,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     }
 
     public Cursor fetchRecomendacionName(int nutrient_id) {
-        Cursor cursor = this.myDatabase.rawQuery("SELECT r.recomendacion AS recomendacion, n.name AS name FROM Recomendations r INNER JOIN Nutrients n ON r.nutrient_id = n.id WHERE n.id = ? AND r.recomendacion != 'NONE'", new String[]{"" + nutrient_id});
+        Cursor cursor = myDatabase.rawQuery("SELECT r.recomendacion AS recomendacion, n.name AS name FROM Recomendations r INNER JOIN Nutrients n ON r.nutrient_id = n.id WHERE n.id = ? AND r.recomendacion != 'NONE'", new String[]{"" + nutrient_id});
         if (cursor != null) {
             cursor.moveToFirst();
         }
@@ -196,7 +196,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     }
 
     public Cursor fetchSteps(int user_id) {
-        Cursor cursor = this.myDatabase.rawQuery("SELECT SUM(steps) AS steps, Date(fecha) as fecha   FROM Steps WHERE user_id = ? GROUP BY fecha ORDER BY fecha DESC limit 31", new String[]{"" + user_id});
+        Cursor cursor = myDatabase.rawQuery("SELECT SUM(steps) AS steps, Date(fecha) as fecha   FROM Steps WHERE user_id = ? GROUP BY fecha ORDER BY fecha DESC limit 31", new String[]{"" + user_id});
         if (cursor != null) {
             cursor.moveToFirst();
         }
@@ -204,7 +204,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     }
 
     public Cursor fetchCaloriesNotSended(int user_id) {
-        Cursor cursor = this.myDatabase.rawQuery("SELECT SUM(calories) AS calories, Date (datetime) as fecha FROM CalorieHistory WHERE sended = 0 AND user_id = ? ORDER  BY fecha", new String[]{"" + user_id});
+        Cursor cursor = myDatabase.rawQuery("SELECT SUM(calories) AS calories, Date (datetime) as fecha FROM CalorieHistory WHERE sended = 0 AND user_id = ? ORDER  BY fecha", new String[]{"" + user_id});
         if (cursor != null) {
             cursor.moveToFirst();
         }
@@ -221,7 +221,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
 
     public Cursor fetchUser(String uid, String provider) {
-        Cursor cursor = this.myDatabase.rawQuery("SELECT * FROM Users WHERE uid = ? AND provider = ?", new String[]{uid, provider});
+        Cursor cursor = myDatabase.rawQuery("SELECT * FROM Users WHERE uid = ? AND provider = ?", new String[]{uid, provider});
         if (cursor != null) {
             cursor.moveToFirst();
         }
@@ -229,25 +229,33 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     }
 
     public Cursor fetchWeigthHistory(int user_id) {
-        Cursor cursor = this.myDatabase.rawQuery("SELECT weigth, date, id FROM WeigthHistory WHERE user_id  = ? ORDER BY id DESC limit 30", new String[]{"" + user_id});
+        Cursor cursor = myDatabase.rawQuery("SELECT weigth, date, id FROM WeigthHistory WHERE user_id  = ? ORDER BY id DESC limit 30", new String[]{"" + user_id});
         if (cursor != null) {
             cursor.moveToFirst();
         }
         return cursor;
     }
 
+    public Cursor fetchConectedUser(){
+        return  myDatabase.rawQuery("SELECT uid, provider, token FROM Users WHERE active_user = 1", null);
+    }
+
+    public Cursor fetchMETS(String provider, String uid){
+        return myDatabase.rawQuery("SELECT * FROM Mets WHERE user_id = (SELECT id FROM users WHERE uid = ? AND provider = ?)", new String[]{uid, provider});
+    }
+
     public long insertCalorieHistory(int user_id, float calories) {
         ContentValues values = new ContentValues();
         values.put("user_id", user_id);
         values.put("calories", calories);
-        return this.myDatabase.insert("CalorieHistory", null, values);
+        return myDatabase.insert("CalorieHistory", null, values);
     }
 
     public long insertSteps(int user_id, int steps) {
         ContentValues values = new ContentValues();
         values.put("user_id", user_id);
         values.put("steps", steps);
-        return this.myDatabase.insert("Steps", null, values);
+        return myDatabase.insert("Steps", null, values);
     }
 
     public long insertUsers(String email, String provider, String token, String uid, String name) {
@@ -257,19 +265,28 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         values.put("token", token);
         values.put("uid", uid);
         values.put("name", name);
-        return this.myDatabase.insert("Users", null, values);
+        return myDatabase.insert("Users", null, values);
     }
 
     public long insertWeigthHistory(int user_id, float weigth) {
         ContentValues values = new ContentValues();
         values.put("user_id", user_id);
         values.put("weigth", weigth);
-        return this.myDatabase.insert("WeigthHistory", null, values);
+        return myDatabase.insert("WeigthHistory", null, values);
     }
 
     public long insertMETS(long id){
        ContentValues values = new ContentValues();
         values.put("user_id", id);
+        return myDatabase.insert("Mets", null, values);
+    }
+
+    public long insertMETS(long id, float caminar, float trotar, float correr){
+        ContentValues values = new ContentValues();
+        values.put("user_id", id);
+        values.put("caminar", caminar);
+        values.put("trotar", trotar);
+        values.put("correr", correr);
         return myDatabase.insert("Mets", null, values);
     }
 
@@ -301,13 +318,13 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         values.put("sended", true);
         Format formatter = new SimpleDateFormat("yyyy-MM-DD");
-        return this.myDatabase.update("CalorieHistory", values, "user_id = ? AND fecha = ? ", new String[]{"" + user_id, formatter.format(fecha)});
+        return myDatabase.update("CalorieHistory", values, "user_id = ? AND fecha = ? ", new String[]{"" + user_id, formatter.format(fecha)});
     }
 
     public int updateUserCalories(String uid, String provider, float calories) {
         ContentValues values = new ContentValues();
         values.put("calories", calories);
-        return this.myDatabase.update("Users", values, "uid = ? AND provider = ?", new String[]{uid, provider});
+        return myDatabase.update("Users", values, "uid = ? AND provider = ?", new String[]{uid, provider});
     }
 
     public void updateUserRangeFemale(String uid, String provider, int edad, int em, int lac) {
@@ -324,7 +341,8 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         values.put("token", token);
         values.put("email", email);
         values.put("name", name);
-        return this.myDatabase.update("Users", values, "uid = ? AND provider = ?", new String[]{uid, provider});
+        values.put("active_user", true);
+        return myDatabase.update("Users", values, "uid = ? AND provider = ?", new String[]{uid, provider});
     }
 
     public int updateUserDate(String uid, String provider){
@@ -333,11 +351,42 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         return myDatabase.update("Users", values, "uid = ? AND provider = ?", new String[]{uid, provider});
     }
 
-    public int updateUserAge(String uid, String provider, int edad) {
+    public int updateUserstatus(){
+        ContentValues values = new ContentValues();
+        values.put("active_user", false);
+        return myDatabase.update("Users", values, null, null);
+    }
 
+    public int updateUserAge(String uid, String provider, int edad) {
         ContentValues values = new ContentValues();
         values.put("edad", edad);
-        return this.myDatabase.update("Users", values, "uid = ? AND provider = ?", new String[]{uid, provider});
+        return myDatabase.update("Users", values, "uid = ? AND provider = ?", new String[]{uid, provider});
+    }
+
+    public int updateMETS(int user_id, float caminar, float trotar, float correr){
+        ContentValues values = new ContentValues();
+        values.put("caminar", caminar);
+        values.put("trotar", trotar);
+        values.put("correr", correr);
+        return myDatabase.update("Users", values, "user_id = ?", new String[]{"" + user_id});
+    }
+
+    public int updateMETS(String uid, String provider, float caminar, float trotar, float correr){
+        ContentValues values = new ContentValues();
+        values.put("caminar", caminar);
+        values.put("trotar", trotar);
+        values.put("correr", correr);
+        return myDatabase.update("Users", values, "user_id = (SELECT id FROM Users WHERE uid = ? AND provider = =)", new String[]{uid, provider});
+    }
+
+    public boolean checkMETS(String provider, String uid){
+        Cursor cursor = myDatabase.rawQuery("SELECT * FROM Mets WHERE user_id = (SELECT id FROM users WHERE uid = ? AND provider = ?)", new String[]{uid, provider});
+        if (cursor != null){
+            if (cursor.moveToFirst()){
+                return true;
+            }
+        }
+        return false;
     }
 
     static {
