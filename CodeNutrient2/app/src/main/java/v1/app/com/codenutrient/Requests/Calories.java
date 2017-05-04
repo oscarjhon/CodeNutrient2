@@ -45,14 +45,15 @@ public class Calories {
         return calories;
     }
 
-    public int ExecutePost(AppUser appUser, float calories) {
+    public int ExecutePOST(AppUser appUser, float calories, Date fecha) {
         RequestPackage requestPackage = new RequestPackage();
         requestPackage.setMethod("POST");
         requestPackage.setUri(Constants.ip_addr + Constants.service_version + Constants.calories);
         requestPackage.setParams("uid", appUser.getUid() + "");
         requestPackage.setParams("provider", appUser.getProvider());
         requestPackage.setParams("token", appUser.getToken());
-        requestPackage.setParams("Calories[gasto]", calories + "");
+        requestPackage.setParams("calories[gasto]", calories + "");
+        requestPackage.setParams("calories[fecha]",fecha.toString());
         return new HttpManager().getData(requestPackage).code;
     }
 }

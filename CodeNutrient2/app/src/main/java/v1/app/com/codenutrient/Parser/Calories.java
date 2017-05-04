@@ -5,6 +5,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+
 import v1.app.com.codenutrient.HTTP.Response;
 
 public class Calories {
@@ -18,8 +21,9 @@ public class Calories {
             JSONObject calorie = data.getJSONObject(0);
             JSONObject attributes = calorie.getJSONObject("attributes");
             calories.setGasto((float) attributes.getDouble("gasto"));
+            calories.setFecha(new SimpleDateFormat("yyyy-MM-dd").parse(attributes.getString("fecha")));
             return calories;
-        } catch (JSONException e) {
+        } catch (JSONException |ParseException e) {
             e.printStackTrace();
             calories.setCode(0);
             return calories;

@@ -6,12 +6,16 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 import v1.app.com.codenutrient.HTTP.HttpManager;
@@ -21,6 +25,7 @@ import v1.app.com.codenutrient.POJO.AppUser;
 import v1.app.com.codenutrient.POJO.BNV_response;
 import v1.app.com.codenutrient.POJO.InfoAppUser;
 import v1.app.com.codenutrient.R;
+import v1.app.com.codenutrient.Requests.Calories;
 import v1.app.com.codenutrient.Services.Pedometer;
 
 public class MainActivity extends AppCompatActivity {
@@ -32,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
     public Button cuenta;
     public Button graficas;
     public Button settings;
+    public CoordinatorLayout coordinator;
     public int selected;
     public int reload;
     public HttpManager manager;
@@ -41,24 +47,61 @@ public class MainActivity extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        this.camara = (Button) findViewById(R.id.camara);
-        this.cuenta = (Button) findViewById(R.id.cuenta);
-        this.graficas = (Button) findViewById(R.id.graficas);
-        this.calendario = (Button) findViewById(R.id.calendario);
+        camara = (Button) findViewById(R.id.camara);
+        cuenta = (Button) findViewById(R.id.cuenta);
+        graficas = (Button) findViewById(R.id.graficas);
+        calendario = (Button) findViewById(R.id.calendario);
+        coordinator = (CoordinatorLayout) findViewById(R.id.main_coordinator);
         //this.settings = (Button) findViewById(R.id.settings);
-        this.about = (Button) findViewById(R.id.about);
-        this.camara.setOnClickListener(onClickListener);
-        this.cuenta.setOnClickListener(onClickListener);
-        this.graficas.setOnClickListener(onClickListener);
-        this.calendario.setOnClickListener(onClickListener);
-        this.settings.setOnClickListener(onClickListener);
-        this.about.setOnClickListener(onClickListener);
+        about = (Button) findViewById(R.id.about);
+        camara.setOnClickListener(onClickListener);
+        cuenta.setOnClickListener(onClickListener);
+        graficas.setOnClickListener(onClickListener);
+        calendario.setOnClickListener(onClickListener);
+        settings.setOnClickListener(onClickListener);
+        about.setOnClickListener(onClickListener);
         service = new Pedometer();
         mServiceIntent = new Intent(this, service.getClass());
         if (!isMyServiceRunning(service.getClass())){
             startService(mServiceIntent);
         }
         //Enviar pasos y calorias si las hay
+        checkNSendCalories();
+        //Habilitar campos (Los campos deben estar inactivos)
+    }
+
+    public void checkNSendCalories(){
+        DataBaseHelper helper = new DataBaseHelper(getApplicationContext());
+        Toast.makeText(getApplicationContext(), "Espera mientras se actualiza tu información", Toast.LENGTH_SHORT);
+        try {
+            helper.openDataBaseReadWrite();
+            Cursor cursor = helper.fetchUserId(appUser.getProvider(), appUser.getUid());
+            if (cursor != null && cursor.moveToFirst()){
+                int id = cursor.getInt(cursor.getColumnIndex("id"));
+                cursor = helper.fetchCaloriesNotSended(id);
+                if(cursor != null && cursor.moveToFirst()){
+                    do {
+                        Calories calories = new Calories();
+                        switch(calories.ExecutePOST(appUser, cursor.getFloat(cursor.getColumnIndex("calories")), new SimpleDateFormat("yyyy-MM-dd").parse(cursor.getString(cursor.getColumnIndex("fecha"))))){
+                            case 200:
+                                helper.updateCaloriesSended(cursor.getString(cursor.getColumnIndex("fecha")), id);
+                                break;
+                            case 401:
+                                if (manager.reload(1, getApplicationContext())){
+                                    switch(calories.ExecutePOST(appUser, cursor.getFloat(cursor.getColumnIndex("calories")), new SimpleDateFormat("yyyy-MM-dd").parse(cursor.getString(cursor.getColumnIndex("fecha"))))){
+                                        case 200:
+                                            helper.updateCaloriesSended(cursor.getString(cursor.getColumnIndex("fecha")), id);
+                                            break;
+                                    }
+                                }
+                        }
+                    }while (cursor.moveToNext());
+                }
+            }
+        } catch (SQLException ignored) {} catch (ParseException e) {
+            e.printStackTrace();
+        }
+        coordinator.setVisibility(View.VISIBLE);
     }
 
     public boolean isMyServiceRunning(Class<?> serviceClass){

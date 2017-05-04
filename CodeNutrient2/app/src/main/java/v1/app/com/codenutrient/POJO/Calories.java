@@ -1,8 +1,11 @@
 package v1.app.com.codenutrient.POJO;
 
+import java.util.Date;
+
 public class Calories {
     private int code;
     private float gasto;
+    private Date fecha;
 
     public int getCode() {
         return code;
@@ -18,5 +21,13 @@ public class Calories {
 
     public void setGasto(float gasto) {
         this.gasto = gasto;
+    }
+
+    public Date getFecha() {
+        return fecha;
+    }
+
+    public void setFecha(Date fecha) {
+        this.fecha = fecha;
     }
 }

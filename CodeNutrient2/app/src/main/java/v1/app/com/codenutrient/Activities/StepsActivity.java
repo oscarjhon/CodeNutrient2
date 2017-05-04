@@ -71,7 +71,7 @@ public class StepsActivity extends AppCompatActivity {
                 break;
             case 2:
                 if (manager.isOnLine(getApplicationContext())){
-
+                    new GetCalories().execute();
                 }else{
                     ShowErrorMessage("Debes tener conexión a internet para consultar esta información");
                 }

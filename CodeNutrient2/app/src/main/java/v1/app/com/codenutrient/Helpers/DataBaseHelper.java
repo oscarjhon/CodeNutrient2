@@ -314,11 +314,10 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         myDatabase = SQLiteDatabase.openDatabase(DB_PATH, null, SQLiteDatabase.OPEN_READWRITE);
     }
 
-    public int updateCaloriesSended(Date fecha, int user_id) {
+    public int updateCaloriesSended(String fecha, int user_id) {
         ContentValues values = new ContentValues();
         values.put("sended", true);
-        Format formatter = new SimpleDateFormat("yyyy-MM-DD");
-        return myDatabase.update("CalorieHistory", values, "user_id = ? AND fecha = ? ", new String[]{"" + user_id, formatter.format(fecha)});
+        return myDatabase.update("CalorieHistory", values, "user_id = ? AND Date(datetime) = ? ", new String[]{"" + user_id, fecha});
     }
 
     public int updateUserCalories(String uid, String provider, float calories) {

@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import v1.app.com.codenutrient.Activities.MainActivity;
 import v1.app.com.codenutrient.Helpers.DataBaseHelper;
 import v1.app.com.codenutrient.POJO.AppUser;
 import v1.app.com.codenutrient.POJO.StepCounters;
