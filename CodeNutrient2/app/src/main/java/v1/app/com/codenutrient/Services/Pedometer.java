@@ -8,6 +8,7 @@ import android.database.Cursor;
 import android.hardware.SensorManager;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -26,19 +27,18 @@ import v1.app.com.codenutrient.accelerometer.OnStepCountChangeListener;
  */
 public class Pedometer  extends Service {
 
-    public boolean conected;
+    public boolean conected = false;
     public AppUser user;
-    StepCounters counters;
     private Timer hourtimerm, m5timer;
     private TimerTask hourtask, m5taskt;
     private int user_id;
+    private String Tag = "PEDOMETER";
 
     private AccelerometerDetector detector;
 
     public Pedometer(){
         super();
         user = new AppUser();
-        conected = false;
     }
 
     @Override
@@ -46,7 +46,7 @@ public class Pedometer  extends Service {
         super.onStartCommand(intent, flags, startId);
         DataBaseHelper helper = new DataBaseHelper(getApplicationContext());
         try {
-            helper.openDataBaseReadWrite();
+            helper.openDataBaseRead();
             Cursor cursor = helper.fetchConectedUser();
             if (cursor != null && cursor.moveToFirst()){
                 conected = true;
@@ -57,13 +57,13 @@ public class Pedometer  extends Service {
                 helper.close();
                 SensorManager manager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
                 detector = new AccelerometerDetector(manager);
-                detector.setStepCountChangeListener(listener);
-                if (intent.hasExtra("counter")){
+                /**if (intent != null && intent.hasExtra("counter")){
                     counters = (StepCounters) intent.getSerializableExtra("counter");
                 }else{
                     counters = new StepCounters();
-                }
+                }*/
                 //Comenzar  contadores de tiempo y lectores de pasos etc.
+                Log.i(Tag, "Iniciado");
                 startM5Task();
             }else{
                 conected = false;
@@ -82,46 +82,52 @@ public class Pedometer  extends Service {
             if (value < 15){
                 //paso normal
                 if (eventMsecTime > 350 && eventMsecTime <1000){
-                    counters.walking ++;
-                    counters.w_time += value;
+                    StepCounters.walking ++;
+                    StepCounters.w_time += value;
                 }
             }
-            if(value < 17){
+            else if(value < 17){
                 //paso trotando
-                if(eventMsecTime > 350 && eventMsecTime < 700){
-                    counters.jogging ++;
-                    counters.j_time += value;
+                if(eventMsecTime > 300 && eventMsecTime < 450){
+                    StepCounters.jogging ++;
+                    StepCounters.j_time += value;
                 }
             }
-            if (value < 19){
+            else if (value < 19){
                 //Correr
-                if(eventMsecTime > 350 && eventMsecTime < 500){
-                    counters.running ++;
-                    counters.r_time += value;
+                if(eventMsecTime > 360 && eventMsecTime < 360){
+                    StepCounters.running ++;
+                    StepCounters.r_time += value;
                 }
             }
+            Log.i(Tag, "Normal: " +StepCounters.walking + " Trotando: " + StepCounters.jogging + " Corriendo: " +StepCounters.running);
         }
     };
 
     private void startHourTask(){
         hourtimerm = new Timer();
         InitializeHourTask();
-        hourtimerm.schedule(hourtask, 3600000);
+        //hourtimerm.schedule(hourtask, 3600000);
+        hourtimerm.schedule(hourtask, 10000);
     }
 
     private void startM5Task(){
         m5timer = new Timer();
         Initialize5MTimerTask();
-        m5timer.schedule(m5taskt, 0, 300000);
+        //m5timer.schedule(m5taskt, 0, 300000);
+        m5timer.schedule(m5taskt, 0, 5000);
     }
 
+    private boolean already = false;
     private void Initialize5MTimerTask(){
         m5taskt = new TimerTask() {
             @Override
             public void run() {
-                if (isAppOnForeground(getApplicationContext())){
+                if (!isAppOnForeground(getApplicationContext()) && !already){
+                    already = true;
                     StartPedometer();
                 }else{
+                    already = false;
                     StopPedometer();
                 }
             }
@@ -152,31 +158,44 @@ public class Pedometer  extends Service {
                 trotar = cursor.getFloat(cursor.getColumnIndex("trotar"));
                 correr = cursor.getFloat(cursor.getColumnIndex("correr"));
             }
-            if (counters.walking != 0){
-                double minutes = counters.w_time/6000;
-                int steps = counters.walking;
+            if (StepCounters.walking != 0){
+                double minutes = StepCounters.w_time/6000;
+                int steps = StepCounters.walking;
                 float calories = (float) (caminar * minutes);
-                helper.insertCalorieHistory(user_id,  calories);
-                helper.insertSteps(user_id, steps);
+                if (minutes > 1) {
+                    helper.insertCalorieHistory(user_id, calories);
+                    helper.insertSteps(user_id, steps);
+                    StepCounters.w_time = 0;
+                    StepCounters.walking = 0;
+                }
             }
-            if (counters.jogging != 0){
-                double minutes = counters.j_time/6000;
-                int steps = counters.jogging;
+            if (StepCounters.jogging != 0){
+                double minutes = StepCounters.j_time/6000;
+                int steps = StepCounters.jogging;
                 float calories = (float) (trotar * minutes);
-                helper.insertCalorieHistory(user_id,  calories);
-                helper.insertSteps(user_id, steps);
+                if (minutes > 1) {
+                    helper.insertCalorieHistory(user_id, calories);
+                    helper.insertSteps(user_id, steps);
+                    StepCounters.j_time = 0;
+                    StepCounters.jogging = 0;
+                }
             }
-            if (counters.running != 0){
-                double minutes = counters.r_time/6000;
-                int steps = counters.running;
+            if (StepCounters.running != 0){
+                double minutes = StepCounters.r_time/6000;
+                int steps = StepCounters.running;
                 float calories = (float) (correr * minutes);
-                helper.insertCalorieHistory(user_id,  calories);
-                helper.insertSteps(user_id, steps);
+                if (minutes > 1) {
+                    helper.insertCalorieHistory(user_id, calories);
+                    helper.insertSteps(user_id, steps);
+                    StepCounters.r_time = 0;
+                    StepCounters.running = 0;
+                }
             }
         } catch (SQLException ignored) {}
     }
 
     private void StartPedometer(){
+        detector.setStepCountChangeListener(listener);
         detector.startDetector();
         startHourTask();
     }
@@ -196,6 +215,7 @@ public class Pedometer  extends Service {
     }
 
     private void StopPedometer(){
+        detector.setStepCountChangeListener(null);
         detector.stopDetector();
     }
 
@@ -207,25 +227,43 @@ public class Pedometer  extends Service {
         }
         final String packageName = context.getPackageName();
         for(ActivityManager.RunningAppProcessInfo appProcessInfo : appProcessInfos){
-            if(appProcessInfo.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND && appProcessInfo.processName.equals(packageName))
+            if(appProcessInfo.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND && appProcessInfo.processName.equals(packageName)) {
                 return true;
+            }
         }
         return false;
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
+    public boolean onUnbind(Intent intent) {
+        Log.i(Tag, "Finish");
         if (conected){
+            Log.i(Tag, "Terminado");
             //reconectar
             Intent broadcastIntent = new Intent("android.intent.action.BOOT_COMPLETED");
-            broadcastIntent.putExtra("counter", counters);
             sendBroadcast(broadcastIntent);
             //Detener procesos;
             StopM5Task();
             StopHourTask();
             StopPedometer();
         }
+        return super.onUnbind(intent);
+    }
+
+    @Override
+    public void onDestroy() {
+        Log.i(Tag, "Finish");
+        if (conected){
+            Log.i(Tag, "Terminado");
+            //reconectar
+            Intent broadcastIntent = new Intent("android.intent.action.BOOT_COMPLETED");
+            sendBroadcast(broadcastIntent);
+            //Detener procesos;
+            StopM5Task();
+            StopHourTask();
+            StopPedometer();
+        }
+        super.onDestroy();
     }
 
     @Nullable

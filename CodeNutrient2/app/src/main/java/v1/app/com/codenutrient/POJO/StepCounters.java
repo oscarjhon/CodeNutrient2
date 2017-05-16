@@ -7,8 +7,8 @@ import java.io.Serializable;
  * This code was made for the project CodeNutrient.
  */
 public class StepCounters  implements Serializable{
-    public int walking, running, jogging;
-    public long w_time, r_time, j_time;
+    public static int walking, running, jogging;
+    public static long w_time, r_time, j_time;
 
     public StepCounters() {
         walking = 0;

@@ -14,7 +14,7 @@ public class SensorRestarterBroadcastReciver extends BroadcastReceiver{
     @Override
     public void onReceive(Context context, Intent intent) {
         Intent sensor = new Intent(context, Pedometer.class);
-        sensor.putExtra("conter", intent.getSerializableExtra("counter"));
+        //sensor.putExtra("conter", intent.getSerializableExtra("counter"));
         context.startService(sensor);
     }
 }

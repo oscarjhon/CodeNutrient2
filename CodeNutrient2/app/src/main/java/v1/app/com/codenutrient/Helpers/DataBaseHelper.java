@@ -204,7 +204,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     }
 
     public Cursor fetchCaloriesNotSended(int user_id) {
-        Cursor cursor = myDatabase.rawQuery("SELECT SUM(calories) AS calories, Date (datetime) as fecha FROM CalorieHistory WHERE sended = 0 AND user_id = ? ORDER  BY fecha", new String[]{"" + user_id});
+        Cursor cursor = myDatabase.rawQuery("SELECT SUM(calories) AS calories, Date(datetime) AS fecha FROM CalorieHistory WHERE sended = 0 AND user_id = ? ORDER  BY fecha", new String[]{"" + user_id});
         if (cursor != null) {
             cursor.moveToFirst();
         }
@@ -216,7 +216,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     }
 
     public Cursor fetchUserEdad(String uid, String provider){
-        return myDatabase.rawQuery("SELECT edad FROM Users WHERE uid = ? AND provider = ?", new String[]{uid, provider});
+        return myDatabase.rawQuery("SELECT edad, id FROM Users WHERE uid = ? AND provider = ?", new String[]{uid, provider});
     }
 
 
@@ -237,7 +237,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     }
 
     public Cursor fetchConectedUser(){
-        return  myDatabase.rawQuery("SELECT uid, provider, token FROM Users WHERE active_user = 1", null);
+        return  myDatabase.rawQuery("SELECT id, uid, provider, token FROM Users WHERE active_user = 1", null);
     }
 
     public Cursor fetchMETS(String provider, String uid){
@@ -362,12 +362,12 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         return myDatabase.update("Users", values, "uid = ? AND provider = ?", new String[]{uid, provider});
     }
 
-    public int updateMETS(int user_id, float caminar, float trotar, float correr){
+    public int updateMETS(long user_id, float caminar, float trotar, float correr){
         ContentValues values = new ContentValues();
         values.put("caminar", caminar);
         values.put("trotar", trotar);
         values.put("correr", correr);
-        return myDatabase.update("Users", values, "user_id = ?", new String[]{"" + user_id});
+        return myDatabase.update("METS", values, "user_id = ?", new String[]{"" + user_id});
     }
 
     public int updateMETS(String uid, String provider, float caminar, float trotar, float correr){
@@ -375,7 +375,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         values.put("caminar", caminar);
         values.put("trotar", trotar);
         values.put("correr", correr);
-        return myDatabase.update("Users", values, "user_id = (SELECT id FROM Users WHERE uid = ? AND provider = =)", new String[]{uid, provider});
+        return myDatabase.update("METS", values, "user_id = (SELECT id FROM Users WHERE uid = ? AND provider = ?)", new String[]{uid, provider});
     }
 
     public boolean checkMETS(String provider, String uid){

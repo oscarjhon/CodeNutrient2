@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -58,15 +59,15 @@ public class MainActivity extends AppCompatActivity {
         cuenta.setOnClickListener(onClickListener);
         graficas.setOnClickListener(onClickListener);
         calendario.setOnClickListener(onClickListener);
-        settings.setOnClickListener(onClickListener);
+        //settings.setOnClickListener(onClickListener);
         about.setOnClickListener(onClickListener);
         service = new Pedometer();
         mServiceIntent = new Intent(this, service.getClass());
+        checkNSendCalories();
         if (!isMyServiceRunning(service.getClass())){
             startService(mServiceIntent);
         }
         //Enviar pasos y calorias si las hay
-        checkNSendCalories();
         //Habilitar campos (Los campos deben estar inactivos)
     }
 
@@ -78,24 +79,28 @@ public class MainActivity extends AppCompatActivity {
             Cursor cursor = helper.fetchUserId(appUser.getProvider(), appUser.getUid());
             if (cursor != null && cursor.moveToFirst()){
                 int id = cursor.getInt(cursor.getColumnIndex("id"));
-                cursor = helper.fetchCaloriesNotSended(id);
-                if(cursor != null && cursor.moveToFirst()){
+                Cursor cursor2 = helper.fetchCaloriesNotSended(id);
+                if(cursor2 != null && cursor2.moveToFirst()){
                     do {
-                        Calories calories = new Calories();
-                        switch(calories.ExecutePOST(appUser, cursor.getFloat(cursor.getColumnIndex("calories")), new SimpleDateFormat("yyyy-MM-dd").parse(cursor.getString(cursor.getColumnIndex("fecha"))))){
-                            case 200:
-                                helper.updateCaloriesSended(cursor.getString(cursor.getColumnIndex("fecha")), id);
-                                break;
-                            case 401:
-                                if (manager.reload(1, getApplicationContext())){
-                                    switch(calories.ExecutePOST(appUser, cursor.getFloat(cursor.getColumnIndex("calories")), new SimpleDateFormat("yyyy-MM-dd").parse(cursor.getString(cursor.getColumnIndex("fecha"))))){
-                                        case 200:
-                                            helper.updateCaloriesSended(cursor.getString(cursor.getColumnIndex("fecha")), id);
-                                            break;
+                        if(cursor2.getFloat(cursor2.getColumnIndex("calories")) != 0)
+                        {
+                            Calories calories = new Calories();
+                            switch (calories.ExecutePOST(appUser, cursor2.getFloat(cursor2.getColumnIndex("calories")), new SimpleDateFormat("yyyy-MM-dd").parse(cursor2.getString(cursor2.getColumnIndex("fecha"))))) {
+                                case 200:
+                                    helper.updateCaloriesSended(cursor2.getString(cursor2.getColumnIndex("fecha")), id);
+                                    break;
+                                case 401:
+                                    if (manager.reload(1, getApplicationContext())) {
+                                        switch (calories.ExecutePOST(appUser, cursor2.getFloat(cursor2.getColumnIndex("calories")), new SimpleDateFormat("yyyy-MM-dd").parse(cursor2.getString(cursor2.getColumnIndex("fecha"))))) {
+                                            case 200:
+                                                helper.updateCaloriesSended(cursor.getString(cursor.getColumnIndex("fecha")), id);
+                                                break;
+                                        }
                                     }
-                                }
+                            }
                         }
                     }while (cursor.moveToNext());
+                    helper.close();
                 }
             }
         } catch (SQLException ignored) {} catch (ParseException e) {
@@ -200,7 +205,7 @@ public class MainActivity extends AppCompatActivity {
             Cursor c = helper.fetchUserEdad(MainActivity.appUser.getUid(), MainActivity.appUser.getProvider());
             if (c != null){
                 if (c.moveToFirst()){
-                    int edad = c.getInt(c.getColumnIndex("id"));
+                    int edad = c.getInt(c.getColumnIndex("edad"));
                     if (edad != MainActivity.appUser.getInfoAppUser().getYear(calendar, nacimiento)){
                         /**
                          * Actualizar valores de infoAppUser y BNV
