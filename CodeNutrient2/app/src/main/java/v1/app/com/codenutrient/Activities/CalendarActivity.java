@@ -7,6 +7,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -78,6 +79,7 @@ public class CalendarActivity extends AppCompatActivity {
             if(v.getId() == R.id.send_calendar){
                 if (product){
                     //Obtener productos en el rango de fechas no mayor a 28 días
+
                     List<CalendarDay> selected_dates = mtv.getSelectedDates();
                     if (selected_dates.size() > 28){
                         ShowErrorMesaage("Selecciona un rango menor a 28 días");
@@ -206,6 +208,12 @@ public class CalendarActivity extends AppCompatActivity {
                 if (product.getCode() == 200){
                     ArrayList<Product> productos = product.getProducts();
                     products.addAll(SetMeasureName(productos));
+                }else if (product.getCode() == 422) {
+                    ShowErrorMesaage("Selecciona otras fechas, estas están fuera del rango permitido");
+                    return;
+                } else{
+                    ShowErrorMesaage("Ha ocurrido un error inesperado");
+                    return;
                 }
             }
             EndRequest();
@@ -312,41 +320,41 @@ public class CalendarActivity extends AppCompatActivity {
                         if (!finded) {
                             item.setNutrient_consumed(0);
                         }
-                        if(v.getNutrient_id() <= 9 || v.getNutrient_id() == 19 && v.getNutrient_id() != 1 && v.getNutrient_id() != 3 && v.getNutrient_id() !=8){
+                        if((v.getNutrient_id() <= 9 || v.getNutrient_id() == 19) && (v.getNutrient_id() != 1 && v.getNutrient_id() != 3 && v.getNutrient_id() !=8)){
                             if ((int)item.getNutrient_consumed() > (int)item.getNutrient_recomended()){
                                 switch (MainActivity.appUser.getInfoAppUser().getIMCNormal()){
                                     case "BAJO":
-                                        item.setNutrient_resume("No es muy recomendable que consumas en exceso esta sustancias");
+                                        item.setNutrient_resume("No es muy recomendable que consumas en exceso este nutriente");
                                         break;
                                     case "NORMAL":
-                                        item.setNutrient_resume("Te recomendamos reducir el consumo de esta sustancias si quieres evitar padecer de obesidad");
+                                        item.setNutrient_resume("Te recomendamos reducir el consumo de este nutriente si quieres evitar padecer de obesidad");
                                         break;
                                     case "SOBREPESO":
-                                        item.setNutrient_resume("Es muy recomendable que disminuyas el consumo de esta sustancias con el fin de reducir tu IMC");
+                                        item.setNutrient_resume("Es muy recomendable que disminuyas el consumo de este nutriente con el fin de reducir tu IMC");
                                         break;
                                     case "OBESIDAD":
-                                        item.setNutrient_resume("Debes procurar consumir lo mínimo de esta sustancia, no es adecuado para tu salud");
+                                        item.setNutrient_resume("Debes procurar consumir lo mínimo de este nutriente, no es adecuado para tu salud");
                                         break;
                                     default:
-                                        item.setNutrient_resume("Es imprecindible que evites el consumo de esta sustancia ya que podría llegar a causarte serios problemas de salud");
+                                        item.setNutrient_resume("Es imprecindible que evites el consumo de este nutriente ya que podría llegar a causarte serios problemas de salud");
                                         break;
                                 }
                             }else if ((int)item.getNutrient_consumed() < (int) item.getNutrient_recomended()){
                                 switch (MainActivity.appUser.getInfoAppUser().getIMCNormal()){
                                     case "BAJO":
-                                        item.setNutrient_resume("Tu consumo de esta sustancia esta por debajo del adecuado produra aumentar ligeramente el consumo para evitar algunas enfermedades");
+                                        item.setNutrient_resume("Tu consumo de este nutriente esta por debajo del adecuado produra aumentar ligeramente el consumo para evitar algunas enfermedades");
                                         break;
                                     case "NORMAL":
-                                        item.setNutrient_resume("Te recomendamos evitar la falta de esta sustancia podría ser perjudicial a largo plazo");
+                                        item.setNutrient_resume("Te recomendamos evitar la falta de este nutriente podría ser perjudicial a largo plazo");
                                         break;
                                     case "SOBREPESO":
-                                        item.setNutrient_resume("Es recomendable que sigas disminuyendo ligeramente el consumo de esta sustancia");
+                                        item.setNutrient_resume("Es recomendable que sigas disminuyendo ligeramente el consumo de este nutriente");
                                         break;
                                     case "OBESIDAD":
-                                        item.setNutrient_resume("Te sugerimos que disminuyas adecuadamente el consumo de esta sustancia");
+                                        item.setNutrient_resume("Te sugerimos que disminuyas adecuadamente el consumo de este nutriente");
                                         break;
                                     default:
-                                        item.setNutrient_resume("Es imprecindible que continues disminuyendo ligeramente el consumo de esta sustencia");
+                                        item.setNutrient_resume("Es imprecindible que continues disminuyendo ligeramente el consumo de este nutriente");
                                         break;
                                 }
                             }else{
@@ -358,13 +366,13 @@ public class CalendarActivity extends AppCompatActivity {
                                         item.setNutrient_resume("Bien, has consumido tu valor adecuado");
                                         break;
                                     case "SOBREPESO":
-                                        item.setNutrient_resume("Bien has consumido lo adecuado para esta sustencia, procura mantener y disminuir ligeramente tu consumo");
+                                        item.setNutrient_resume("Bien has consumido lo adecuado para este nutriente, procura mantener y disminuir ligeramente tu consumo");
                                         break;
                                     case "OBESIDAD":
-                                        item.setNutrient_resume("Te sugerimos que disminuyas adecuadamente el consumo de esta sustancia");
+                                        item.setNutrient_resume("Te sugerimos que disminuyas adecuadamente el consumo de este nutriente");
                                         break;
                                     default:
-                                        item.setNutrient_resume("Es imprecindible que continues disminuyendo ligeramente el consumo de esta sustencia");
+                                        item.setNutrient_resume("Es imprecindible que continues disminuyendo ligeramente el consumo de este nutriente");
                                         break;
                                 }
                             }
@@ -443,20 +451,20 @@ public class CalendarActivity extends AppCompatActivity {
             ArrayList<HasProduct> hasProducts = new ArrayList<>();
             for (CalendarDay day : params[0]){
                 HasProduct hasProduct;
-                if (day.getCalendar().equals(today)) {
+                if (day.getCalendar().get(Calendar.DAY_OF_MONTH) == today.get(Calendar.DAY_OF_MONTH)) {
                     hasProduct = request.ExecuteGET(MainActivity.appUser);
-                    if (hasProduct.getCode() == 200 || hasProduct.getCode() == 404){
+                    if (hasProduct.getCode() == 200 || hasProduct.getCode() == 206){
                         hasProducts.add(hasProduct);
-                    }else{
+                    }else if (hasProduct.getCode() != 404) {
                         ArrayList<HasProduct> aux = new ArrayList<>();
                         aux.add(hasProduct);
                         return aux;
                     }
                 }else {
                     hasProduct = request.ExecuteGET(MainActivity.appUser, day.getDate());
-                    if (hasProduct.getCode() == 200 || hasProduct.getCode() == 404){
+                    if (hasProduct.getCode() == 200 ||hasProduct.getCode() == 206){
                         hasProducts.add(hasProduct);
-                    }else{
+                    }else if( hasProduct.getCode() != 404){
                         ArrayList<HasProduct> aux = new ArrayList<>();
                         aux.add(hasProduct);
                         return aux;

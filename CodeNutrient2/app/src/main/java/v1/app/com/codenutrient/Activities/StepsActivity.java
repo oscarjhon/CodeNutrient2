@@ -1,10 +1,12 @@
 package v1.app.com.codenutrient.Activities;
 
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -44,12 +46,13 @@ public class StepsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_steps);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         spinner = (Spinner) findViewById(R.id.steps_spinner);
         lineChart = (LineChart) findViewById(R.id.charts);
-
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.steps_spinner, R.layout.spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        String[] items = new String[]{"-","Calorías consumidas", "Calorías gastadas", "Pasos"};
+        ArrayAdapter adapter = new ArrayAdapter<String>(this,   android.R.layout.simple_spinner_item, items);
+        adapter.setDropDownViewResource(R.layout.spinner_item);
         spinner.setAdapter(adapter);
         spinner.setOnItemSelectedListener(new SpinnerEvent());
         days = Calendar.getInstance().getActualMaximum(Calendar.DAY_OF_MONTH);
@@ -109,6 +112,7 @@ public class StepsActivity extends AppCompatActivity {
     }
 
     public void ShowErrorMessage(String message){
+        spinner.setEnabled(true);
         Snackbar.make(findViewById(R.id.steps_coordinator), message, Snackbar.LENGTH_LONG);
     }
 
@@ -157,6 +161,7 @@ public class StepsActivity extends AppCompatActivity {
         lineChart.setScaleEnabled(true);
         lineChart.setPinchZoom(false);
         lineChart.setDoubleTapToZoomEnabled(true);
+        spinner.setEnabled(true);
     }
 
     public class GetSteps{
@@ -169,16 +174,16 @@ public class StepsActivity extends AppCompatActivity {
                 if (cursor != null){
                     if (cursor.moveToFirst()){
                         int id = cursor.getInt(cursor.getColumnIndex("id"));
-                        cursor = helper.fetchSteps(id);
-                        if (cursor != null){
+                        Cursor cursor2 = helper.fetchSteps(id);
+                        if (cursor2 != null){
                             ArrayList<StepEntries> stepEntries = new ArrayList<>();
-                            if (cursor.moveToFirst()){
+                            if (cursor2.moveToFirst()){
                                 do{
                                     StepEntries entry = new StepEntries();
-                                    entry.setDay(format.parse(cursor.getString(cursor.getColumnIndex("fecha"))));
-                                    entry.setValue(cursor.getFloat(cursor.getColumnIndex("steps")));
+                                    entry.setDay(format.parse(cursor2.getString(cursor2.getColumnIndex("fecha"))));
+                                    entry.setValue(cursor2.getFloat(cursor2.getColumnIndex("steps")));
                                     stepEntries.add(entry);
-                                }while (cursor.moveToNext());
+                                }while (cursor2.moveToNext());
                                 invertArray(stepEntries);
                             }else{
                                 ShowErrorMessage("Aun no se han registrado ninguna actividad");
@@ -221,24 +226,30 @@ public class StepsActivity extends AppCompatActivity {
             boolean reloaded = false;
             Calendar cal = Calendar.getInstance();
             Calendar today = Calendar.getInstance();
+            cal.set(Calendar.DAY_OF_MONTH, 1);
             HasProduct request = new HasProduct();
             ArrayList<StepEntries> entities = new ArrayList<>();
             for (int i = 1; i <= days; i++){
                 v1.app.com.codenutrient.POJO.HasProduct products;
+                cal.set(Calendar.DAY_OF_MONTH, i);
                 if(cal.get(Calendar.DAY_OF_MONTH) <= today.get(Calendar.DAY_OF_MONTH)) {
                     if (cal.get(Calendar.DAY_OF_MONTH) == today.get(Calendar.DAY_OF_MONTH)){
                         products = request.ExecuteGET(MainActivity.appUser);
-                    }else {
-                        cal.set(Calendar.DAY_OF_MONTH, i);
-                        products =request.ExecuteGET(MainActivity.appUser, cal.getTime());
+                    }else{
+                        products = request.ExecuteGET(MainActivity.appUser, cal.getTime());
                     }
-                    if (products.getCode() == 200){
+                    if (products.getCode() == 200) {
                         int calories = 0;
-                        for(Product p : products.getProducts()){
+                        for (Product p : products.getProducts()) {
                             calories += p.getCalorias();
                         }
                         StepEntries entries = new StepEntries();
                         entries.setValue(calories);
+                        entries.setDay(cal.getTime());
+                        entities.add(entries);
+                    }else if (products.getCode() == 404){
+                        StepEntries entries = new StepEntries();
+                        entries.setValue(0);
                         entries.setDay(cal.getTime());
                         entities.add(entries);
                     }else if (products.getCode() == 401){
@@ -269,22 +280,28 @@ public class StepsActivity extends AppCompatActivity {
         @Override
         protected ArrayList<StepEntries> doInBackground(String... params) {
             boolean reloaded = false;
+            float kcal = MainActivity.appUser.getInfoAppUser().getMax_calorias();
             Calendar cal = Calendar.getInstance();
             Calendar today = Calendar.getInstance();
             Calories request = new Calories();
             ArrayList<StepEntries> entities = new ArrayList<>();
             for (int i = 1; i <= days; i++){
                 v1.app.com.codenutrient.POJO.Calories calories;
+                cal.set(Calendar.DAY_OF_MONTH, i);
                 if(cal.get(Calendar.DAY_OF_MONTH) <= today.get(Calendar.DAY_OF_MONTH)) {
                     if (cal.get(Calendar.DAY_OF_MONTH) == today.get(Calendar.DAY_OF_MONTH)){
                          calories = request.ExecuteGET(MainActivity.appUser);
                     }else {
-                        cal.set(Calendar.DAY_OF_MONTH, i);
                         calories =request.ExecuteGET(MainActivity.appUser, cal.getTime());
                     }
                     if (calories.getCode() == 200){
                         StepEntries entries = new StepEntries();
-                        entries.setValue(calories.getGasto());
+                        entries.setValue(calories.getGasto() + kcal);
+                        entries.setDay(cal.getTime());
+                        entities.add(entries);
+                    }else if (calories.getCode() == 404){
+                        StepEntries entries = new StepEntries();
+                        entries.setValue(kcal);
                         entries.setDay(cal.getTime());
                         entities.add(entries);
                     }else if (calories.getCode() == 401){
@@ -297,7 +314,10 @@ public class StepsActivity extends AppCompatActivity {
                             }
                         }
                     }else{
-                        return null;
+                        StepEntries entries = new StepEntries();
+                        entries.setValue(kcal);
+                        entries.setDay(cal.getTime());
+                        entities.add(entries);
                     }
 
                 }

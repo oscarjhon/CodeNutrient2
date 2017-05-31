@@ -73,7 +73,7 @@
                     android:layout_width="wrap_content"
                     android:background="@android:color/transparent"
                     android:layout_height="wrap_content"
-                    android:layout_margin="20dp"
+                    android:layout_margin="30dp"
                     android:drawableTop="@drawable/step"
                     android:id="@+id/steps"
                     android:text="@string/menu_steps"/>
@@ -83,9 +83,9 @@
                     android:layout_height="wrap_content"
                     android:background="@android:color/transparent"
                     android:layout_margin="20dp"
-                    android:drawableTop="@drawable/ic_live_help"
+                    android:drawableTop="@drawable/ic_kcal"
                     android:id="@+id/about"
-                    android:text="@string/menu_about"/>
+                    android:text="@string/menu_kcal"/>
             </LinearLayout>
         </LinearLayout>
     </ScrollView>

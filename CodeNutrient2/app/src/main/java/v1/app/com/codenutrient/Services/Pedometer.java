@@ -79,26 +79,18 @@ public class Pedometer  extends Service {
     private OnStepCountChangeListener listener = new OnStepCountChangeListener() {
         @Override
         public void onStepCountChange(long eventMsecTime, double value) {
-            if (value < 15){
-                //paso normal
-                if (eventMsecTime > 350 && eventMsecTime <1000){
-                    StepCounters.walking ++;
-                    StepCounters.w_time += value;
-                }
-            }
-            else if(value < 17){
-                //paso trotando
-                if(eventMsecTime > 300 && eventMsecTime < 450){
-                    StepCounters.jogging ++;
-                    StepCounters.j_time += value;
-                }
-            }
-            else if (value < 19){
+            if ((value > 20 && value <= 34) && (eventMsecTime > 250 && eventMsecTime <= 380)){
                 //Correr
-                if(eventMsecTime > 360 && eventMsecTime < 360){
-                    StepCounters.running ++;
-                    StepCounters.r_time += value;
-                }
+                StepCounters.running ++;
+                StepCounters.r_time += value;
+            }else if ((value > 15 && value <= 20) && (eventMsecTime > 270 && eventMsecTime <= 400)){
+                //paso trotando
+                StepCounters.jogging ++;
+                StepCounters.j_time += value;
+            }else if ((value <= 15) && (eventMsecTime > 350 && eventMsecTime <= 800)){
+                //caminando
+                StepCounters.walking ++;
+                StepCounters.w_time += value;
             }
             Log.i(Tag, "Normal: " +StepCounters.walking + " Trotando: " + StepCounters.jogging + " Corriendo: " +StepCounters.running);
         }
@@ -108,14 +100,14 @@ public class Pedometer  extends Service {
         hourtimerm = new Timer();
         InitializeHourTask();
         //hourtimerm.schedule(hourtask, 3600000);
-        hourtimerm.schedule(hourtask, 10000);
+        hourtimerm.schedule(hourtask, 60000*5);
     }
 
     private void startM5Task(){
         m5timer = new Timer();
         Initialize5MTimerTask();
-        //m5timer.schedule(m5taskt, 0, 300000);
-        m5timer.schedule(m5taskt, 0, 5000);
+        m5timer.schedule(m5taskt, 0, 60000);
+        //m5timer.schedule(m5taskt, 0, 5000);
     }
 
     private boolean already = false;
@@ -164,7 +156,7 @@ public class Pedometer  extends Service {
                 float calories = (float) (caminar * minutes);
                 if (minutes > 1) {
                     helper.insertCalorieHistory(user_id, calories);
-                    helper.insertSteps(user_id, steps);
+                    helper.insertSteps(user_id, steps, 1);
                     StepCounters.w_time = 0;
                     StepCounters.walking = 0;
                 }
@@ -175,7 +167,7 @@ public class Pedometer  extends Service {
                 float calories = (float) (trotar * minutes);
                 if (minutes > 1) {
                     helper.insertCalorieHistory(user_id, calories);
-                    helper.insertSteps(user_id, steps);
+                    helper.insertSteps(user_id, steps, 2);
                     StepCounters.j_time = 0;
                     StepCounters.jogging = 0;
                 }
@@ -186,7 +178,7 @@ public class Pedometer  extends Service {
                 float calories = (float) (correr * minutes);
                 if (minutes > 1) {
                     helper.insertCalorieHistory(user_id, calories);
-                    helper.insertSteps(user_id, steps);
+                    helper.insertSteps(user_id, steps, 3);
                     StepCounters.r_time = 0;
                     StepCounters.running = 0;
                 }

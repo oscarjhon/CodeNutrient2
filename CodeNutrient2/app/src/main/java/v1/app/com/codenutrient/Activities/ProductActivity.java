@@ -276,7 +276,11 @@ public class ProductActivity extends AppCompatActivity {
                     } else {
                         return null;
                     }
-
+                case 404:
+                    eatenNutrients = new EatenNutrients();
+                    ArrayList<Nutrient> nutrients2 = new ArrayList<>();
+                    eatenNutrients.setNutrients(nutrients2);
+                    return eatenNutrients;
                 default:
                     return null;
             }
@@ -308,6 +312,9 @@ public class ProductActivity extends AppCompatActivity {
                     } else {
                         return null;
                     }
+                case 404:
+                    hasProduct.setProducts(new ArrayList<Product>());
+                    return hasProduct;
                 default:
                     return null;
             }

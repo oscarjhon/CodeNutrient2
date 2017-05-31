@@ -49,6 +49,12 @@ public class MyProductAdapter extends RecyclerView.Adapter<MyProductAdapter.Prod
                 .into(holder.product_image);
     }
 
+    public void clear() {
+        int size = this.my_data.size();
+        this.my_data.clear();
+        notifyItemRangeRemoved(0, size);
+    }
+
     @Override
     public int getItemCount() {
         return my_data.size();

@@ -21,9 +21,8 @@ public class Calories {
             JSONObject calorie = data.getJSONObject(0);
             JSONObject attributes = calorie.getJSONObject("attributes");
             calories.setGasto((float) attributes.getDouble("gasto"));
-            calories.setFecha(new SimpleDateFormat("yyyy-MM-dd").parse(attributes.getString("fecha")));
             return calories;
-        } catch (JSONException |ParseException e) {
+        } catch (JSONException  e) {
             e.printStackTrace();
             calories.setCode(0);
             return calories;

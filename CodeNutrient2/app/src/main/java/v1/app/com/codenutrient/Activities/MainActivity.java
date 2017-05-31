@@ -18,6 +18,7 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 
 import v1.app.com.codenutrient.HTTP.HttpManager;
 import v1.app.com.codenutrient.Helpers.DataBaseHelper;
@@ -37,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
     public Button camara;
     public Button cuenta;
     public Button graficas;
-    public Button settings;
+    public Button steps;
     public CoordinatorLayout coordinator;
     public int selected;
     public int reload;
@@ -53,20 +54,19 @@ public class MainActivity extends AppCompatActivity {
         graficas = (Button) findViewById(R.id.graficas);
         calendario = (Button) findViewById(R.id.calendario);
         coordinator = (CoordinatorLayout) findViewById(R.id.main_coordinator);
-        //this.settings = (Button) findViewById(R.id.settings);
+        steps = (Button) findViewById(R.id.steps);
         about = (Button) findViewById(R.id.about);
         camara.setOnClickListener(onClickListener);
         cuenta.setOnClickListener(onClickListener);
         graficas.setOnClickListener(onClickListener);
         calendario.setOnClickListener(onClickListener);
-        //settings.setOnClickListener(onClickListener);
+        steps.setOnClickListener(onClickListener);
         about.setOnClickListener(onClickListener);
         service = new Pedometer();
         mServiceIntent = new Intent(this, service.getClass());
         checkNSendCalories();
-        if (!isMyServiceRunning(service.getClass())){
-            startService(mServiceIntent);
-        }
+        ExecueTest();
+        coordinator.setVisibility(View.VISIBLE);
         //Enviar pasos y calorias si las hay
         //Habilitar campos (Los campos deben estar inactivos)
     }
@@ -106,7 +106,6 @@ public class MainActivity extends AppCompatActivity {
         } catch (SQLException ignored) {} catch (ParseException e) {
             e.printStackTrace();
         }
-        coordinator.setVisibility(View.VISIBLE);
     }
 
     public boolean isMyServiceRunning(Class<?> serviceClass){
@@ -136,6 +135,9 @@ public class MainActivity extends AppCompatActivity {
                     isManagerOnline();
                     break;
                 case R.id.calendario:
+                    isManagerOnline();
+                    break;
+                case R.id.steps:
                     isManagerOnline();
                     break;
             }
@@ -171,6 +173,35 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void ExecueTest(){
+        DataBaseHelper helper = new DataBaseHelper(getApplicationContext());
+        try {
+            helper.openDataBaseReadWrite();
+            Cursor cursor = helper.fetchMETS(MainActivity.appUser.getProvider(), MainActivity.appUser.getUid());
+            if (cursor != null && cursor.moveToFirst()){
+                int user_id = cursor.getInt(cursor.getColumnIndex("user_id"));
+                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+                Calendar five = Calendar.getInstance();
+                five.add(Calendar.DAY_OF_MONTH, -5);
+                helper.insertSteps(user_id, 4553,1, format.format(five.getTime()));
+                five = Calendar.getInstance();
+                five.add(Calendar.DAY_OF_MONTH, -4);
+                helper.insertSteps(user_id, 4231,1,format.format(five.getTime()));
+                five = Calendar.getInstance();
+                five.add(Calendar.DAY_OF_MONTH, -3);
+                helper.insertSteps(user_id, 2150,1,format.format(five.getTime()));
+                five = Calendar.getInstance();
+                five.add(Calendar.DAY_OF_MONTH, -2);
+                helper.insertSteps(user_id, 3231,1,format.format(five.getTime()));
+                five = Calendar.getInstance();
+                five.add(Calendar.DAY_OF_MONTH, -1);
+                helper.insertSteps(user_id, 3893,1,format.format(five.getTime()));
+                helper.insertSteps(user_id, 720,1);
+                helper.close();
+            }
+        } catch (SQLException ignored) {}
+    }
+
     private void ShowErrorMessage(String Message){
         Snackbar.make(findViewById(R.id.main_coordinator), Message, Snackbar.LENGTH_SHORT).show();
     }
@@ -192,6 +223,9 @@ public class MainActivity extends AppCompatActivity {
                 intent.putExtra("Type", true);
                 startActivity(intent);
                 break;
+            case R.id.steps:
+                intent = getIntent().setClass(MainActivity.this, StepsActivity.class);
+                startActivity(intent);
         }
     }
 
@@ -303,6 +337,14 @@ public class MainActivity extends AppCompatActivity {
             }else{
                 Snackbar.make(findViewById(R.id.main_coordinator), "No se ha obtenido ningun código", Snackbar.LENGTH_SHORT).show();
             }
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (!isMyServiceRunning(service.getClass())){
+            startService(mServiceIntent);
         }
     }
 

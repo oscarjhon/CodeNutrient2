@@ -15,6 +15,7 @@ import java.io.OutputStream;
 import java.sql.SQLException;
 import java.text.Format;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 public class DataBaseHelper extends SQLiteOpenHelper {
@@ -196,7 +197,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     }
 
     public Cursor fetchSteps(int user_id) {
-        Cursor cursor = myDatabase.rawQuery("SELECT SUM(steps) AS steps, Date(fecha) as fecha   FROM Steps WHERE user_id = ? GROUP BY fecha ORDER BY fecha DESC limit 31", new String[]{"" + user_id});
+        Cursor cursor = myDatabase.rawQuery("SELECT SUM(steps) AS steps, strftime('%Y-%m-%d', fecha) fecha   FROM Steps WHERE user_id = ? GROUP BY fecha ORDER BY fecha DESC limit 31", new String[]{"" + user_id});
         if (cursor != null) {
             cursor.moveToFirst();
         }
@@ -251,10 +252,20 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         return myDatabase.insert("CalorieHistory", null, values);
     }
 
-    public long insertSteps(int user_id, int steps) {
+    public long insertSteps(int user_id, int steps, int type) {
         ContentValues values = new ContentValues();
         values.put("user_id", user_id);
         values.put("steps", steps);
+        values.put("type", type);
+        return myDatabase.insert("Steps", null, values);
+    }
+
+    public long insertSteps(int user_id, int steps, int type, String fecha) {
+        ContentValues values = new ContentValues();
+        values.put("user_id", user_id);
+        values.put("steps", steps);
+        values.put("type", type);
+        values.put("fecha", fecha);
         return myDatabase.insert("Steps", null, values);
     }
 

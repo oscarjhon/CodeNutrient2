@@ -1,6 +1,6 @@
 <resources>
     <string name="afirmativo">Si</string>
-    <string name="app_name">CodeNutrient</string>
+    <string name="app_name">StepyDiet</string>
     <string name="code_reader_text">Coloca el código en el rectángulo del centro.</string>
     <string name="custom_view_finder_scanner_activity">CodeNutrient</string>
     <string name="dis_diabetes">Diabetes</string>
@@ -29,16 +29,11 @@
     <string name="menu_consultar_productos">Productos consumidos</string>
     <string name="menu_consultar_estadisticas">Estadísticas de consumo</string>
     <string name="menu_steps">Consultar pasos</string>
-    <string name="menu_about">Acerca de</string>
+    <string name="menu_kcal">Historial calórico</string>
     <string name="get_calendar">Consultar por fecha</string>
     <string name="single_date">Selecciona una fecha</string>
     <string name="range_dates">Selecciona un rango de fechas</string>
     <string name="step_tittle">Resumen mensual</string>
     <string name="logout">Cerrar sesión</string>
-    <string-array name="steps_spinner">
-        <item>-</item>
-        <item>Calorías consumidas</item>
-        <item>Calorías gastadas</item>
-        <item>Pasos</item>
-    </string-array>
+
 </resources>
