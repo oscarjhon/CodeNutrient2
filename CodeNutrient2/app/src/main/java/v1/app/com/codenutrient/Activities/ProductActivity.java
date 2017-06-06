@@ -56,6 +56,7 @@ public class ProductActivity extends AppCompatActivity {
     public boolean showed;
     public int selected_portions = 0;
     private AlertDialog alertDialog1;
+    private float step_calories;
 
 
     public ProductActivity() {
@@ -81,6 +82,7 @@ public class ProductActivity extends AppCompatActivity {
         registrar = (Button) findViewById(R.id.register);
         evaluar.setOnClickListener(listener);
         registrar.setOnClickListener(listener);
+        step_calories = 0;
         fragment = (v1.app.com.codenutrient.Fragments.Product) getFragmentManager().findFragmentById(R.id.product_fragment);
         if (manager.isOnLine(getApplicationContext())) {
             new MyTask().execute(new String[0]);
@@ -213,9 +215,9 @@ public class ProductActivity extends AppCompatActivity {
                                     } catch (InterruptedException ignored) {}
                                     if (nutrient == 0){
                                         if (selected_portions != 1)
-                                            showSuccessMessage("Es recomendable que consumas "+ new n2l().convertirLetras(selected_portions) + " porciones de este producto");
+                                            showSuccessMessage("Puedes consumir "+ new n2l().convertirLetras(selected_portions) + " porciones de este producto");
                                         else
-                                            showSuccessMessage("Es recomendable que consumas una porción de este producto");
+                                            showSuccessMessage("Puedes consumir este producto");
                                     }else{
                                         String nombre = "";
                                         for (Nutrient nutrient1 : nombres){
@@ -225,9 +227,9 @@ public class ProductActivity extends AppCompatActivity {
                                             }
                                         }
                                         if (selected_portions != 1) {
-                                            showSuccessMessage("No es recomendable que consumas " + new n2l().convertirLetras(selected_portions) + " porciones de este producto debido a su alto contenido de " + nombre);
+                                            showSuccessMessage("No es recomendable que consumas " + new n2l().convertirLetras(selected_portions) + " porciones, debido a su alto contenido de " + nombre);
                                         }else{
-                                            showSuccessMessage("No es recomendable que consumas ni una porcion de este producto debido a su alto contenido de " + nombre);
+                                            showSuccessMessage("No es recomendable que consumas ni una porción de este producto debido a su alto contenido de " + nombre);
                                         }
                                     }
                                     break;
@@ -402,7 +404,7 @@ public class ProductActivity extends AppCompatActivity {
         for (Product product1 : products){
             calories_consumed += product1.getCalorias();
         }
-        if (MainActivity.appUser.getInfoAppUser().getMax_calorias() > calories_consumed + (product.getCalorias() * selected_portions)){
+        if (MainActivity.appUser.getInfoAppUser().getMax_calorias() + step_calories > calories_consumed + (product.getCalorias() * selected_portions)){
             return "FINE";
         }
         return "BAD";

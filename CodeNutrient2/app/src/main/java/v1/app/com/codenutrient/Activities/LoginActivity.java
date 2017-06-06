@@ -59,7 +59,6 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         progressBar = (ProgressBar) findViewById(R.id.login_bar);
         DataBaseHelper d = new DataBaseHelper(getApplicationContext());
         try {
-            d.delete();
             d.createDataBase();
             d.openDataBaseReadWrite();
             if (d.checkMeasure()) {
@@ -120,7 +119,6 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         helper.openDataBaseReadWrite();
         if (appUser != null) {
             helper.updateUsers(token, uid, "Google", email, name);
-            helper.updateUserDate(uid, "Google");
             helper.close();
             return getDatabaseUser(provider, uid);
         }
@@ -129,7 +127,6 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
             return null;
         }
         helper.insertMETS(id);
-        helper.updateUserDate(uid, "Google");
         helper.close();
         return getDatabaseUser(provider, uid);
     }
@@ -151,6 +148,13 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
             public void onResult(@NonNull Status status) {
             }
         });
+        DataBaseHelper helper = new DataBaseHelper(getApplicationContext());
+        try {
+            helper.openDataBaseReadWrite();
+            helper.updateUsersStatus();
+            helper.close();
+        } catch (SQLException ignored) {}
+
     }
 
     private AppUser getDatabaseUser(String provider, String uid) throws SQLException {

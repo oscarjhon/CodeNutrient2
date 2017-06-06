@@ -3,18 +3,14 @@ package v1.app.com.codenutrient.Activities;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
-import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
-
-import com.prolificinteractive.materialcalendarview.CalendarDay;
-import com.prolificinteractive.materialcalendarview.CalendarMode;
-import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 
 import java.sql.SQLException;
 import java.text.DateFormat;
@@ -22,8 +18,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 
 import v1.app.com.codenutrient.Adapters.MyNutrientAdapter;
@@ -41,189 +35,140 @@ import v1.app.com.codenutrient.R;
 import v1.app.com.codenutrient.Requests.Values;
 
 /**
- * Created by Arturo on 27/03/2017.
+ * Created by Arturo on 01/06/2017.
  * This code was made for the project CodeNutrient.
  */
-public class CalendarActivity extends AppCompatActivity {
+public class ResumeActivity extends AppCompatActivity {
 
-    private MaterialCalendarView mtv;
-    public boolean product;
-    private TextView tittle;
-    private Button send;
-    private Calendar today;
-    private BNV_response bnv;
+    private ImageButton prev, next;
+    private TextView date_text;
+    private RecyclerView recyclerView;
+    private boolean product;
     private int reload;
     private HttpManager manager;
-    private RecyclerView recycler;
+    private Calendar today, min_date, actual_date;
     private LinearLayoutManager lManager;
+    private BNV_response bnv;
 
-    public void onCreate(Bundle savedInstance) {
-        super.onCreate(savedInstance);
-        setContentView(R.layout.activity_calendar);
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_resume);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        mtv = (MaterialCalendarView) findViewById(R.id.calendarView);
-        tittle = (TextView) findViewById(R.id.calendar_tittle);
-        send = (Button) findViewById(R.id.send_calendar);
+        prev = (ImageButton) findViewById(R.id.prev_date);
+        next = (ImageButton) findViewById(R.id.next_date);
 
-        recycler = (RecyclerView) findViewById(R.id.calendar_recycler);
+        date_text = (TextView) findViewById(R.id.date_text);
 
-        send.setOnClickListener(listener);
+        recyclerView = (RecyclerView) findViewById(R.id.resume_recycler);
 
         product = getIntent().getBooleanExtra("Type", true);
-        setCalendarType(product);
         manager = new HttpManager();
+
+        today = Calendar.getInstance();
+        min_date = Calendar.getInstance();
+        actual_date = Calendar.getInstance();
+
+        date_text.setText(actual_date.get(Calendar.YEAR) + "/" + (actual_date.get(Calendar.MONTH) + 1) + "/" + actual_date.get(Calendar.DAY_OF_MONTH));
+
+        DataBaseHelper helper = new DataBaseHelper(getApplicationContext());
+        try {
+            helper.openDataBaseRead();
+            Cursor cursor = helper.fetchUserDate(MainActivity.appUser.getUid(), MainActivity.appUser.getProvider());
+            if (cursor != null && cursor.moveToFirst()){
+                String fecha = cursor.getString(cursor.getColumnIndex("min_fecha"));
+                DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+                min_date.setTime(formatter.parse(fecha));
+            }
+        } catch (SQLException |ParseException ignored) {}
+        chechDate();
+        if(manager.isOnLine(getApplicationContext())){
+            reload = 0;
+            if (product) {
+                new MyTaskProduct().execute();
+            }else{
+                new MyTaskNutrient().execute();
+            }
+        }else{
+            ShowMesagge("Debes tener conexión a internet para utilizar esta funcionalidad.");
+        }
     }
 
-    private View.OnClickListener listener = new View.OnClickListener() {
+    private void ShowMesagge(String message){
+        Snackbar.make(findViewById(R.id.resume_coordinator), message, Snackbar.LENGTH_LONG).show();
+    }
+
+    private void Error(String message){
+        recyclerView.setVisibility(View.GONE);
+        ShowMesagge(message);
+        EndRequest();
+    }
+
+    private void StartRequest(){
+        recyclerView.setAlpha(0.5f);
+        if(manager.isOnLine(getApplicationContext())){
+            reload = 0;
+            prev.setOnClickListener(null);
+            prev.setOnClickListener(null);
+            if (product) {
+                new MyTaskProduct().execute();
+            }else{
+                new MyTaskNutrient().execute();
+            }
+        }else{
+            Error("Debes tener conexión a internet para utilizar esta funcionalidad.");
+        }
+    }
+
+    private void EndRequest(){
+        chechDate();
+    }
+
+    private void chechDate(){
+        if(min_date.equals(actual_date)) {
+            prev.setOnClickListener(null);
+        }else {
+            prev.setOnClickListener(listener);
+        }
+
+        if (actual_date.equals(today)) {
+            next.setOnClickListener(null);
+        }else {
+            next.setOnClickListener(listener);
+        }
+        recyclerView.setAlpha(1);
+    }
+
+    View.OnClickListener listener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            if(v.getId() == R.id.send_calendar){
-                if (product){
-                    //Obtener productos en el rango de fechas no mayor a 28 días
-
-                    List<CalendarDay> selected_dates = mtv.getSelectedDates();
-                    if (selected_dates.size() > 28){
-                        ShowErrorMesaage("Selecciona un rango menor a 28 días");
-                    }else{
-                        beginProductRequest(selected_dates);
-                    }
-                }
-                else{
-                    //Obtener resumen nutrimental
-                    CalendarDay selcted_date = mtv.getSelectedDate();
-                    beginNutrientRequest(selcted_date);
-                }
+            switch (v.getId()){
+                case R.id.prev_date:
+                    actual_date.add(Calendar.DAY_OF_MONTH, -1);
+                    date_text.setText(actual_date.get(Calendar.YEAR) + "/" + (actual_date.get(Calendar.MONTH) + 1) + "/" + actual_date.get(Calendar.DAY_OF_MONTH));
+                    StartRequest();
+                    break;
+                case R.id.next_date:
+                    actual_date.add(Calendar.DAY_OF_MONTH, 1);
+                    date_text.setText(actual_date.get(Calendar.YEAR) + "/" + (actual_date.get(Calendar.MONTH) + 1) + "/" + actual_date.get(Calendar.DAY_OF_MONTH));
+                    StartRequest();
+                    break;
             }
         }
     };
 
-    private void beginProductRequest(List<CalendarDay> selected_dates){
-        beginTransaction();
-        if(manager.isOnLine(this)) {
-            MyTaskProduct myTaskProduct = new MyTaskProduct();
-            myTaskProduct.execute(selected_dates);
-        }else{
-            ShowErrorMesaage("Debes tener conexión a internet para realizar esta acción");
-        }
-    }
-
-    private void beginNutrientRequest(CalendarDay selected_date){
-        beginTransaction();
-        if (manager.isOnLine(this)) {
-            MyTaskNutrient myTaskNutrient = new MyTaskNutrient();
-            myTaskNutrient.execute(selected_date);
-        }else{
-            ShowErrorMesaage("Debes tener conexión a internet para realizar esta acción");
-        }
-    }
-
-    private void ShowErrorMesaage(String message){
-        Snackbar.make(findViewById(R.id.calendar_coordinator), message, Snackbar.LENGTH_LONG);
-        send.setEnabled(true);
-        mtv.setEnabled(true);
-    }
-
-    private void beginTransaction(){
-        Snackbar.make(findViewById(R.id.calendar_coordinator), "Espera un poco mientas se obtiene tu información", Snackbar.LENGTH_LONG);
-        send.setEnabled(false);
-        reload = 0;
-        mtv.setEnabled(false);
-    }
-
-    private void setCalendarType(boolean product){
-        if (product){
-            tittle.setText(R.string.range_dates);
-            mtv.setSelectionMode(MaterialCalendarView.SELECTION_MODE_RANGE);
-        }else{
-            tittle.setText(R.string.single_date);
-            mtv.setSelectionMode(MaterialCalendarView.SELECTION_MODE_SINGLE);
-        }
-
-        today = Calendar.getInstance();
-        Calendar Minimum_date = Calendar.getInstance();
-        Date date;
-        DataBaseHelper helper = new DataBaseHelper(getApplicationContext());
-        mtv.setSelectedDate(today);
-        try {
-            helper.openDataBaseRead();
-            Cursor cursor = helper.fetchUserDate(MainActivity.appUser.getUid(), MainActivity.appUser.getProvider());
-            if(cursor != null){
-                cursor.moveToFirst();
-                String fecha = cursor.getString(cursor.getColumnIndex("min_fecha"));
-                DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
-                try {
-                    date = formatter.parse(fecha);
-                } catch (ParseException ignored) {
-                    date = DefaultDate();
-                }
-            }else{
-                date = DefaultDate();
-            }
-        } catch (SQLException e) {
-            date = DefaultDate();
-        }
-        Minimum_date.setTime(date);
-        mtv.state().edit()
-                .setMinimumDate(Minimum_date)
-                .setMaximumDate(today)
-                .setCalendarDisplayMode(CalendarMode.MONTHS)
-                .commit();
-    }
-
-    private void RecyclerProduct(ArrayList<HasProduct> hasProducts){
-        reload ++;
-        if (hasProducts.size() == 0){
-            ShowErrorMesaage("No se ha obtenido ningun producto");
+    private void RecyclerProduct(HasProduct products){
+        if (products.getProducts() == null || products.getProducts().size() ==0){
+            Error("No se han regisrado productos este día");
             return;
         }
-        if (hasProducts.size() == 1){
-            switch (hasProducts.get(0).getCode()){
-                case 200:
-                    EndRequest();
-                    lManager = new LinearLayoutManager(this);
-                    recycler.setLayoutManager(lManager);
-                    MyProductAdapter adapter = new MyProductAdapter(SetMeasureName(hasProducts.get(0).getProducts()), this);
-                    recycler.setAdapter(adapter);
-                    break;
-                case 401:
-                    if (reload != 1){
-                        ShowErrorMesaage("Ha ocurrido un error al iniciar sesión");
-                        return;
-                    }else{
-                        if (manager.reload(reload, getApplicationContext())) {
-                            List<CalendarDay> calendarDays = mtv.getSelectedDates();
-                            MyTaskProduct myTaskProduct = new MyTaskProduct();
-                            myTaskProduct.execute(calendarDays);
-                        }
-                    }
-                    break;
-                case 422:
-                    ShowErrorMesaage("Selecciona otras fechas, estas están fuera del rango permitido");
-                    return;
-                default:
-                    ShowErrorMesaage("Ha ocurrido un error inesperado");
-            }
-        }else{
-            ArrayList<Product> products = new ArrayList<>();
-            for (HasProduct product : hasProducts){
-                if (product.getCode() == 200){
-                    ArrayList<Product> productos = product.getProducts();
-                    products.addAll(SetMeasureName(productos));
-                }else if (product.getCode() == 422) {
-                    ShowErrorMesaage("Selecciona otras fechas, estas están fuera del rango permitido");
-                    return;
-                } else{
-                    ShowErrorMesaage("Ha ocurrido un error inesperado");
-                    return;
-                }
-            }
-            EndRequest();
-            lManager = new LinearLayoutManager(this);
-            recycler.setLayoutManager(lManager);
-            MyProductAdapter adapter = new MyProductAdapter(products, this);
-            recycler.setAdapter(adapter);
-        }
+        lManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(lManager);
 
+        MyProductAdapter adapter = new MyProductAdapter(SetMeasureName(products.getProducts()), this);
+        recyclerView.setAdapter(adapter);
+        recyclerView.setVisibility(View.VISIBLE);
+        EndRequest();
     }
 
     private ArrayList<Product> SetMeasureName(ArrayList<Product> products){
@@ -262,23 +207,47 @@ public class CalendarActivity extends AppCompatActivity {
         }
     }
 
+    private void productPostExecute(HasProduct products){
+        switch (products.getCode()){
+            case 200:
+                RecyclerProduct(products);
+                break;
+            case 404:
+                Error("No se han encontrado productos registrados");
+                break;
+            case 422:
+                Error("Ha ocurrido un error inesperado");
+                break;
+            case 401:
+                reload ++;
+                if (manager.reload(reload, getApplicationContext()))
+                    new MyTaskProduct().execute();
+                else
+                    Error("Ha ocurrido un error al inicar sesión");
+                break;
+            default:
+                Error("Ha ocurrido un error inesperado");
+                break;
+        }
+    }
+
     private void RecyclerNutrient(EatenNutrients eatenNutrients){
         reload ++;
         switch (eatenNutrients.getCode()){
             case 200:
                 lManager = new LinearLayoutManager(this);
-                recycler.setLayoutManager(lManager);
+                recyclerView.setLayoutManager(lManager);
                 DataBaseHelper helper = new DataBaseHelper(getApplicationContext());
                 try {
                     helper.openDataBaseRead();
                     Cursor cursorNutrients = helper.fetchNutrients();
                     Cursor cursorMeasures = helper.fetchMeasures();
                     if (cursorNutrients == null || cursorMeasures == null){
-                        ShowErrorMesaage("Ocurrio un error en la base de datos");
+                        Error("Ocurrio un error en la base de datos");
                         return;
                     }
                     if (!cursorMeasures.moveToFirst() || !cursorMeasures.moveToFirst()){
-                        ShowErrorMesaage("Ocurrio un error en la base de datos");
+                        Error("Ocurrio un error en la base de datos");
                         return;
                     }
                     ArrayList<Nutrient> nutrients = new ArrayList<>();
@@ -382,7 +351,7 @@ public class CalendarActivity extends AppCompatActivity {
                         }else{
                             if(item.getNutrient_recomended() <= 5){
                                 if (item.getNutrient_consumed() > item.getNutrient_recomended()){
-                                   item.setNutrient_resume("El consumo excesivo de este nutriente puede llegar a cuasar algunas enfermedades, te recomendamos que disminuyas el consumo del mismo");
+                                    item.setNutrient_resume("El consumo excesivo de este nutriente puede llegar a cuasar algunas enfermedades, te recomendamos que disminuyas el consumo del mismo");
                                 }else if (item.getNutrient_consumed() < item.getNutrient_recomended()){
                                     item.setNutrient_resume("Es recomendable que consumas la cantidad adecuada de este nutriente para mantenerte saludable");
                                 }else{
@@ -402,100 +371,66 @@ public class CalendarActivity extends AppCompatActivity {
                     }
                     EndRequest();
                     MyNutrientAdapter adapter = new MyNutrientAdapter(items);
-                    recycler.setAdapter(adapter);
+                    recyclerView.setAdapter(adapter);
+                    recyclerView.setVisibility(View.VISIBLE);
                     helper.close();
                 } catch (SQLException e) {
-                    ShowErrorMesaage("Ocurrio un error en la base de datos");
+                    Error("Ocurrio un error en la base de datos");
                     return;
                 }
                 break;
             case 401:
+                reload ++;
                 if (manager.reload(reload, getApplicationContext())){
-                    MyTaskNutrient myTaskNutrient = new MyTaskNutrient();
-                    myTaskNutrient.execute(mtv.getSelectedDate());
+                    new MyTaskNutrient().execute();
                 }
                 break;
             case 404:
-                ShowErrorMesaage("Te recomendamos que consumas la cantidad adecuada de nutrientes");
+                Error("No se ha encontrado tu historial de consumo de nutrientes");
                 break;
             case 422:
-                ShowErrorMesaage("La fecha que has enviado esta fuera de las fecha permitidas, vuelve a intentarlo con una fecha valida");
+                Error("La fecha que has enviado esta fuera de las fecha permitidas, vuelve a intentarlo con una fecha valida");
                 break;
             default:
-                ShowErrorMesaage("Ocurrio un error inesperado");
+                Error("Ocurrio un error inesperado");
 
         }
     }
 
-    private void EndRequest(){
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException ignored) {}
-        send.setEnabled(true);
-        mtv.setEnabled(true);
-    }
-
-    private Date DefaultDate(){
-        DateFormat formatter = new SimpleDateFormat("yyyy/MM/dd");
-        Date date = new Date();
-        try {
-            date = formatter.parse("2017/01/01");
-        } catch (ParseException ignored) {}
-        return date;
-    }
-
-    private class MyTaskProduct extends AsyncTask<List<CalendarDay>, String, ArrayList<HasProduct>>{
+    private class MyTaskProduct extends AsyncTask<String, String, HasProduct>{
 
         @Override
-        protected final ArrayList<HasProduct> doInBackground(List<CalendarDay>... params) {
+        protected HasProduct doInBackground(String... params) {
             v1.app.com.codenutrient.Requests.HasProduct request = new v1.app.com.codenutrient.Requests.HasProduct();
-            ArrayList<HasProduct> hasProducts = new ArrayList<>();
-            for (CalendarDay day : params[0]){
-                HasProduct hasProduct;
-                if (day.getCalendar().get(Calendar.DAY_OF_MONTH) == today.get(Calendar.DAY_OF_MONTH)) {
-                    hasProduct = request.ExecuteGET(MainActivity.appUser);
-                    if (hasProduct.getCode() == 200 || hasProduct.getCode() == 206){
-                        hasProducts.add(hasProduct);
-                    }else if (hasProduct.getCode() != 404) {
-                        ArrayList<HasProduct> aux = new ArrayList<>();
-                        aux.add(hasProduct);
-                        return aux;
-                    }
-                }else {
-                    hasProduct = request.ExecuteGET(MainActivity.appUser, day.getDate());
-                    if (hasProduct.getCode() == 200 ||hasProduct.getCode() == 206){
-                        hasProducts.add(hasProduct);
-                    }else if( hasProduct.getCode() != 404){
-                        ArrayList<HasProduct> aux = new ArrayList<>();
-                        aux.add(hasProduct);
-                        return aux;
-                    }
-                }
-            }
-            return hasProducts;
+            if (actual_date.equals(today))
+                return request.ExecuteGET(MainActivity.appUser);
+            else
+                return request.ExecuteGET(MainActivity.appUser, actual_date.getTime());
         }
 
         @Override
-        protected void onPostExecute(ArrayList<HasProduct> hasProducts) {
-            RecyclerProduct(hasProducts);
+        protected void onPostExecute(HasProduct hasProduct) {
+            super.onPostExecute(hasProduct);
+            productPostExecute(hasProduct);
         }
     }
 
-    private class MyTaskNutrient extends AsyncTask<CalendarDay, String, EatenNutrients>{
+    private class MyTaskNutrient extends AsyncTask<String, String, EatenNutrients>{
 
         @Override
-        protected EatenNutrients doInBackground(CalendarDay... params) {
+        protected EatenNutrients doInBackground(String... params) {
             Values v_request = new Values();
             bnv = v_request.ExecuteGET(MainActivity.appUser);
             v1.app.com.codenutrient.Requests.EatenNutrients request = new v1.app.com.codenutrient.Requests.EatenNutrients();
-            if (params[0].getCalendar().equals(today))
+            if (actual_date.equals(today))
                 return request.ExecuteGET(MainActivity.appUser);
             else
-                return request.ExecuteGET(MainActivity.appUser, params[0].getDate());
+                return request.ExecuteGET(MainActivity.appUser, actual_date.getTime());
         }
 
         @Override
         protected void onPostExecute(EatenNutrients eatenNutrients) {
+            super.onPostExecute(eatenNutrients);
             RecyclerNutrient(eatenNutrients);
         }
     }

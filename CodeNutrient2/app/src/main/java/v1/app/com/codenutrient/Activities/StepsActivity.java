@@ -27,6 +27,7 @@ import java.util.List;
 
 import v1.app.com.codenutrient.HTTP.HttpManager;
 import v1.app.com.codenutrient.Helpers.DataBaseHelper;
+import v1.app.com.codenutrient.POJO.Constants;
 import v1.app.com.codenutrient.POJO.Product;
 import v1.app.com.codenutrient.POJO.StepEntries;
 import v1.app.com.codenutrient.R;
@@ -116,34 +117,7 @@ public class StepsActivity extends AppCompatActivity {
         Snackbar.make(findViewById(R.id.steps_coordinator), message, Snackbar.LENGTH_LONG);
     }
 
-    public String GetMonthName(){
-        switch (month){
-            case 0:
-                return "Enero";
-            case 1:
-                return "Febrero";
-            case 2:
-                return "Marzo";
-            case 3:
-                return "Abril";
-            case 4:
-                return  "Mayo";
-            case 5:
-                return "Junio";
-            case 6:
-                return "Julio";
-            case 7:
-                return "Agosto";
-            case 8:
-                return "Septiembre";
-            case 9:
-                return "Octubre";
-            case 10:
-                return "Noviembre";
-            default:
-                return "Diciembre";
-        }
-    }
+
 
     public void ShowSuccess(List<Entry> entries, String label){
         LineDataSet dataSet = new LineDataSet(entries, label);
@@ -216,7 +190,7 @@ public class StepsActivity extends AppCompatActivity {
                 }
             }
         }
-        passStepEntryesToList(entries1, "Pasos recorridos durante " + GetMonthName());
+        passStepEntryesToList(entries1, "Pasos recorridos durante " + Constants.GetMonthName(month));
     }
 
     public class GetProducts extends  AsyncTask<String, String, ArrayList<StepEntries>> {
@@ -271,7 +245,7 @@ public class StepsActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(ArrayList<StepEntries> entries) {
             super.onPostExecute(entries);
-            passStepEntryesToList(entries, "Calorías consumidas durante " + GetMonthName() );
+            passStepEntryesToList(entries, "Calorías consumidas durante " + Constants.GetMonthName(month) );
         }
     }
 
@@ -328,7 +302,7 @@ public class StepsActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(ArrayList<StepEntries> entries) {
             super.onPostExecute(entries);
-            passStepEntryesToList(entries, "Calorías quemadas durante " + GetMonthName() );
+            passStepEntryesToList(entries, "Calorías quemadas durante " + Constants.GetMonthName(month) );
         }
     }
 

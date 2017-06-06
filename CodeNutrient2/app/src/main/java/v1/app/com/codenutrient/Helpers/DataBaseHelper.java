@@ -355,13 +355,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         return myDatabase.update("Users", values, "uid = ? AND provider = ?", new String[]{uid, provider});
     }
 
-    public int updateUserDate(String uid, String provider){
-        ContentValues values = new ContentValues();
-        values.put("min_fecha", "2017-03-27");
-        return myDatabase.update("Users", values, "uid = ? AND provider = ?", new String[]{uid, provider});
-    }
-
-    public int updateUserstatus(){
+    public int updateUsersStatus(){
         ContentValues values = new ContentValues();
         values.put("active_user", false);
         return myDatabase.update("Users", values, null, null);

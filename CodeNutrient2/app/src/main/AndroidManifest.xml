@@ -39,6 +39,11 @@
             android:screenOrientation="portrait"
             android:parentActivityName=".Activities.MainActivity"
             android:theme="@style/AppTheme"/>
+        <activity android:name=".Activities.ResumeActivity"
+            android:screenOrientation="portrait"
+            android:parentActivityName=".Activities.MainActivity"
+            android:theme="@style/AppTheme"/>
+
         <activity android:name=".Activities.InfoAppUserActivity"
             android:screenOrientation="portrait"
             android:parentActivityName=".Activities.MainActivity"
@@ -49,10 +54,13 @@
             android:parentActivityName=".Activities.MainActivity"
             android:theme="@style/AppTheme"/>
         <activity android:name=".Activities.StepsActivity"
-            android:screenOrientation="portrait"
+            android:screenOrientation="landscape"
             android:parentActivityName=".Activities.MainActivity"
             android:theme="@style/AppTheme"/>
-
+        <activity android:name=".Activities.CaloryActivity"
+            android:screenOrientation="landscape"
+            android:parentActivityName=".Activities.MainActivity"
+            android:theme="@style/AppTheme"/>
         <service
             android:name=".Services.Pedometer"
             android:enabled="true" />

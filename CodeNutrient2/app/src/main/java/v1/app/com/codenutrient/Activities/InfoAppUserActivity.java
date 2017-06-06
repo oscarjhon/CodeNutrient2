@@ -55,6 +55,7 @@ public class InfoAppUserActivity extends AppCompatActivity implements DatePicker
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         setContentView(R.layout.activity_info_app_user);
         if (!new HttpManager().isOnLine(getApplicationContext())) {
             Snackbar.make(findViewById(R.id.info_coordinator), "No estas conectado a internet", Snackbar.LENGTH_SHORT).show();

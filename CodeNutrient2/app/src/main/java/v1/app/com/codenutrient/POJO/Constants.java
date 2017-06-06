@@ -7,8 +7,38 @@ public class Constants {
     public static final String has_products = "has_products";
     public static final String info_app_users = "info_app_users";
     //public static final String ip_addr = "https://food-api-app.herokuapp.com/";
-    public static final String ip_addr = "http://172.16.10.152/";
+    public static final String ip_addr = "http://172.16.10.68/";
     public static final String products = "products/";
     public static final String service_version = "api/v1/";
     public static final String values = "best_nutrient_values";
+
+
+    public static String GetMonthName(int month){
+        switch (month){
+            case 0:
+                return "Enero";
+            case 1:
+                return "Febrero";
+            case 2:
+                return "Marzo";
+            case 3:
+                return "Abril";
+            case 4:
+                return  "Mayo";
+            case 5:
+                return "Junio";
+            case 6:
+                return "Julio";
+            case 7:
+                return "Agosto";
+            case 8:
+                return "Septiembre";
+            case 9:
+                return "Octubre";
+            case 10:
+                return "Noviembre";
+            default:
+                return "Diciembre";
+        }
+    }
 }

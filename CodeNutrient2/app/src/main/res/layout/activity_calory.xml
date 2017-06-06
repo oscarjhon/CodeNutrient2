@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/steps_coordinator">
+    android:id="@+id/calory_coordinator">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -14,21 +14,21 @@
             android:src="@drawable/ic_navigate_before_big"
             android:background="@android:color/transparent"
             android:layout_gravity="center_vertical"
-            android:id="@+id/before_steps"
+            android:id="@+id/before_calory"
             android:layout_weight="1"/>
-            <com.github.mikephil.charting.charts.LineChart
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:id="@+id/step_charts"
-                android:layout_weight="8">
-            </com.github.mikephil.charting.charts.LineChart>
+        <com.github.mikephil.charting.charts.LineChart
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/calory_charts"
+            android:layout_weight="8">
+        </com.github.mikephil.charting.charts.LineChart>
         <ImageButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/ic_navigate_next_big"
             android:background="@android:color/transparent"
             android:layout_gravity="center_vertical"
-            android:id="@+id/next_steps"
+            android:id="@+id/next_calory"
             android:layout_weight="1" />
     </LinearLayout>
 </android.support.design.widget.CoordinatorLayout>

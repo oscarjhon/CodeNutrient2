@@ -79,15 +79,15 @@ public class Pedometer  extends Service {
     private OnStepCountChangeListener listener = new OnStepCountChangeListener() {
         @Override
         public void onStepCountChange(long eventMsecTime, double value) {
-            if ((value > 20 && value <= 34) && (eventMsecTime > 250 && eventMsecTime <= 380)){
+            if ((value > 18 && value <= 34) && (eventMsecTime > 250 && eventMsecTime <= 400)){
                 //Correr
                 StepCounters.running ++;
                 StepCounters.r_time += value;
-            }else if ((value > 15 && value <= 20) && (eventMsecTime > 270 && eventMsecTime <= 400)){
+            }else if ((value > 13.5 && value <= 18) && (eventMsecTime > 250 && eventMsecTime <= 500)){
                 //paso trotando
                 StepCounters.jogging ++;
                 StepCounters.j_time += value;
-            }else if ((value <= 15) && (eventMsecTime > 350 && eventMsecTime <= 800)){
+            }else if ((value <= 15) && (eventMsecTime > 300 && eventMsecTime <= 800)){
                 //caminando
                 StepCounters.walking ++;
                 StepCounters.w_time += value;

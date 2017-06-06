@@ -10,9 +10,15 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
+
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
 
 import java.sql.SQLException;
 import java.text.ParseException;
@@ -65,15 +71,52 @@ public class MainActivity extends AppCompatActivity {
         service = new Pedometer();
         mServiceIntent = new Intent(this, service.getClass());
         checkNSendCalories();
-        ExecueTest();
         coordinator.setVisibility(View.VISIBLE);
         //Enviar pasos y calorias si las hay
         //Habilitar campos (Los campos deben estar inactivos)
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.logout){
+            Toast.makeText(getApplicationContext(), "Cerrar sesión", Toast.LENGTH_SHORT).show();
+            signOut();
+
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void signOut() {
+        Auth.GoogleSignInApi.signOut(LoginActivity.googleApiClient).setResultCallback(
+                new ResultCallback<Status>() {
+                    @Override
+                    public void onResult(Status status) {
+                        Intent intent = new Intent().setClass(MainActivity.this, LoginActivity.class);
+
+                        DataBaseHelper helper = new DataBaseHelper(getApplicationContext());
+                        try {
+                            helper.openDataBaseReadWrite();
+                            helper.updateUsersStatus();
+                            helper.close();
+                            MainActivity.appUser = null;
+                            startActivity(intent);
+                            finish();
+                        } catch (SQLException e) {
+                            ShowErrorMessage("Ha ocurrido un error inesperado");
+                        }
+                    }
+                });
+    }
+
     public void checkNSendCalories(){
         DataBaseHelper helper = new DataBaseHelper(getApplicationContext());
-        Toast.makeText(getApplicationContext(), "Espera mientras se actualiza tu información", Toast.LENGTH_SHORT);
+        Toast.makeText(getApplicationContext(), "Espera mientras se actualiza tu información", Toast.LENGTH_SHORT).show();
         try {
             helper.openDataBaseReadWrite();
             Cursor cursor = helper.fetchUserId(appUser.getProvider(), appUser.getUid());
@@ -145,13 +188,17 @@ public class MainActivity extends AppCompatActivity {
     };
 
     public void isManagerOnline(){
-        manager = new HttpManager();
-        if (manager.isOnLine(getApplicationContext())) {
-            MyTaskGET myTaskGET = new MyTaskGET();
-            myTaskGET.execute();
-            reload = 1;
+        if (MainActivity.appUser.getInfoAppUser() != null){
+            lastPostExecute();
         }else {
-            Snackbar.make(findViewById(R.id.main_coordinator), "Debes tneer conexión a internet para utilizar esta función", Snackbar.LENGTH_SHORT).show();
+            manager = new HttpManager();
+            if (manager.isOnLine(getApplicationContext())) {
+                MyTaskGET myTaskGET = new MyTaskGET();
+                myTaskGET.execute();
+                reload = 1;
+            } else {
+                Snackbar.make(findViewById(R.id.main_coordinator), "Debes tneer conexión a internet para utilizar esta función", Snackbar.LENGTH_SHORT).show();
+            }
         }
     }
 
@@ -173,35 +220,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void ExecueTest(){
-        DataBaseHelper helper = new DataBaseHelper(getApplicationContext());
-        try {
-            helper.openDataBaseReadWrite();
-            Cursor cursor = helper.fetchMETS(MainActivity.appUser.getProvider(), MainActivity.appUser.getUid());
-            if (cursor != null && cursor.moveToFirst()){
-                int user_id = cursor.getInt(cursor.getColumnIndex("user_id"));
-                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-                Calendar five = Calendar.getInstance();
-                five.add(Calendar.DAY_OF_MONTH, -5);
-                helper.insertSteps(user_id, 4553,1, format.format(five.getTime()));
-                five = Calendar.getInstance();
-                five.add(Calendar.DAY_OF_MONTH, -4);
-                helper.insertSteps(user_id, 4231,1,format.format(five.getTime()));
-                five = Calendar.getInstance();
-                five.add(Calendar.DAY_OF_MONTH, -3);
-                helper.insertSteps(user_id, 2150,1,format.format(five.getTime()));
-                five = Calendar.getInstance();
-                five.add(Calendar.DAY_OF_MONTH, -2);
-                helper.insertSteps(user_id, 3231,1,format.format(five.getTime()));
-                five = Calendar.getInstance();
-                five.add(Calendar.DAY_OF_MONTH, -1);
-                helper.insertSteps(user_id, 3893,1,format.format(five.getTime()));
-                helper.insertSteps(user_id, 720,1);
-                helper.close();
-            }
-        } catch (SQLException ignored) {}
-    }
-
     private void ShowErrorMessage(String Message){
         Snackbar.make(findViewById(R.id.main_coordinator), Message, Snackbar.LENGTH_SHORT).show();
     }
@@ -214,12 +232,12 @@ public class MainActivity extends AppCompatActivity {
                 startActivityForResult(intent, CAMERA_INTENT);
                 break;
             case R.id.graficas:
-                intent = getIntent().setClass(MainActivity.this, CalendarActivity.class);
+                intent = getIntent().setClass(MainActivity.this, ResumeActivity.class);
                 intent.putExtra("Type", false);
                 startActivity(intent);
                 break;
             case R.id.calendario:
-                intent = getIntent().setClass(MainActivity.this, CalendarActivity.class);
+                intent = getIntent().setClass(MainActivity.this, ResumeActivity.class);
                 intent.putExtra("Type", true);
                 startActivity(intent);
                 break;
