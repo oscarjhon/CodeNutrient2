@@ -64,7 +64,6 @@
         <service
             android:name=".Services.Pedometer"
             android:enabled="true" />
-
         <receiver android:name=".Services.SensorRestarterBroadcastReciver"
             android:enabled="true"
             android:exported="true"

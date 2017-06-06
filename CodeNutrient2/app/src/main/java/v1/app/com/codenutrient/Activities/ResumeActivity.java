@@ -25,6 +25,7 @@ import v1.app.com.codenutrient.Adapters.MyProductAdapter;
 import v1.app.com.codenutrient.HTTP.HttpManager;
 import v1.app.com.codenutrient.Helpers.DataBaseHelper;
 import v1.app.com.codenutrient.POJO.BNV_response;
+import v1.app.com.codenutrient.POJO.Constants;
 import v1.app.com.codenutrient.POJO.EatenNutrients;
 import v1.app.com.codenutrient.POJO.HasProduct;
 import v1.app.com.codenutrient.POJO.Item_nutrient;
@@ -125,13 +126,13 @@ public class ResumeActivity extends AppCompatActivity {
     }
 
     private void chechDate(){
-        if(min_date.equals(actual_date)) {
+        if(Constants.isSameDay(min_date, actual_date)) {
             prev.setOnClickListener(null);
         }else {
             prev.setOnClickListener(listener);
         }
 
-        if (actual_date.equals(today)) {
+        if (Constants.isSameDay(actual_date, today)) {
             next.setOnClickListener(null);
         }else {
             next.setOnClickListener(listener);
@@ -402,7 +403,7 @@ public class ResumeActivity extends AppCompatActivity {
         @Override
         protected HasProduct doInBackground(String... params) {
             v1.app.com.codenutrient.Requests.HasProduct request = new v1.app.com.codenutrient.Requests.HasProduct();
-            if (actual_date.equals(today))
+            if (Constants.isSameDay(actual_date, today))
                 return request.ExecuteGET(MainActivity.appUser);
             else
                 return request.ExecuteGET(MainActivity.appUser, actual_date.getTime());
@@ -422,7 +423,7 @@ public class ResumeActivity extends AppCompatActivity {
             Values v_request = new Values();
             bnv = v_request.ExecuteGET(MainActivity.appUser);
             v1.app.com.codenutrient.Requests.EatenNutrients request = new v1.app.com.codenutrient.Requests.EatenNutrients();
-            if (actual_date.equals(today))
+            if (Constants.isSameDay(actual_date, today))
                 return request.ExecuteGET(MainActivity.appUser);
             else
                 return request.ExecuteGET(MainActivity.appUser, actual_date.getTime());

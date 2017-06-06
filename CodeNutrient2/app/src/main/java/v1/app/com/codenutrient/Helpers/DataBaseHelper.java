@@ -196,8 +196,8 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         return cursor;
     }
 
-    public Cursor fetchSteps(int user_id) {
-        Cursor cursor = myDatabase.rawQuery("SELECT SUM(steps) AS steps, strftime('%Y-%m-%d', fecha) fecha   FROM Steps WHERE user_id = ? GROUP BY fecha ORDER BY fecha DESC limit 31", new String[]{"" + user_id});
+    public Cursor fetchStepsByType(String uid, String provider, int type, String fecha) {
+        Cursor cursor = myDatabase.rawQuery("SELECT SUM(steps) AS steps FROM Steps WHERE type = ? AND strftime('%Y-%m-%d', fecha) = ? AND user_id = (SELECT id FROM Users WHERE uid = ? AND provider = ?)  GROUP BY user_id", new String[]{"" + type, fecha, uid, provider});
         if (cursor != null) {
             cursor.moveToFirst();
         }
@@ -242,7 +242,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     }
 
     public Cursor fetchMETS(String provider, String uid){
-        return myDatabase.rawQuery("SELECT * FROM Mets WHERE user_id = (SELECT id FROM users WHERE uid = ? AND provider = ?)", new String[]{uid, provider});
+        return myDatabase.rawQuery("SELECT * FROM Mets WHERE user_id = (SELECT id FROM Users WHERE uid = ? AND provider = ?)", new String[]{uid, provider});
     }
 
     public long insertCalorieHistory(int user_id, float calories) {
@@ -257,15 +257,6 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         values.put("user_id", user_id);
         values.put("steps", steps);
         values.put("type", type);
-        return myDatabase.insert("Steps", null, values);
-    }
-
-    public long insertSteps(int user_id, int steps, int type, String fecha) {
-        ContentValues values = new ContentValues();
-        values.put("user_id", user_id);
-        values.put("steps", steps);
-        values.put("type", type);
-        values.put("fecha", fecha);
         return myDatabase.insert("Steps", null, values);
     }
 
@@ -365,14 +356,6 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         values.put("edad", edad);
         return myDatabase.update("Users", values, "uid = ? AND provider = ?", new String[]{uid, provider});
-    }
-
-    public int updateMETS(long user_id, float caminar, float trotar, float correr){
-        ContentValues values = new ContentValues();
-        values.put("caminar", caminar);
-        values.put("trotar", trotar);
-        values.put("correr", correr);
-        return myDatabase.update("METS", values, "user_id = ?", new String[]{"" + user_id});
     }
 
     public int updateMETS(String uid, String provider, float caminar, float trotar, float correr){

@@ -35,5 +35,5 @@
     <string name="range_dates">Selecciona un rango de fechas</string>
     <string name="step_tittle">Resumen mensual</string>
     <string name="logout">Cerrar sesión</string>
-
+    <string name="calories">Gráfica caloríca semanal</string>
 </resources>
