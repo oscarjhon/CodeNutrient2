@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -196,12 +197,14 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
             appUser.setPhoto(account.getPhotoUrl());
             moveToMain(appUser);
         } else {
-            progressBar.setVisibility(View.INVISIBLE);
-            image.setVisibility(View.VISIBLE);
-            text.setVisibility(View.VISIBLE);
-            signInButton.setVisibility(View.VISIBLE);
-            signInButton.setEnabled(true);
-            Snackbar.make(findViewById(R.id.loginCoordinator),  "No se ha podido iniciar sesión", Snackbar.LENGTH_SHORT).show();
+             Log.e("ERROR", result.getStatus().toString());
+
+             progressBar.setVisibility(View.INVISIBLE);
+             image.setVisibility(View.VISIBLE);
+             text.setVisibility(View.VISIBLE);
+             signInButton.setVisibility(View.VISIBLE);
+             signInButton.setEnabled(true);
+             Snackbar.make(findViewById(R.id.loginCoordinator),  "No se ha podido iniciar sesión", Snackbar.LENGTH_SHORT).show();
         }
     }
 

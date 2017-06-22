@@ -1,9 +1,11 @@
 package v1.app.com.codenutrient.Activities;
 
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 
@@ -17,10 +19,13 @@ import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 
+import java.sql.SQLException;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -53,8 +58,7 @@ public class StepsActivity extends AppCompatActivity {
         saturday_wek = Calendar.getInstance();
         min_date = Calendar.getInstance();
 
-        sunday_wek.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
-        saturday_wek.set(Calendar.DAY_OF_WEEK, Calendar.SATURDAY);
+        saturday_wek.roll(Calendar.DATE, -6);
 
         DataBaseHelper helper = new DataBaseHelper(getApplicationContext());
         try {
@@ -67,13 +71,13 @@ public class StepsActivity extends AppCompatActivity {
                 helper.close();
                 BeginRequests();
             }
-        } catch (Exception ignored) {
-            ShowErrorMessage("Ocurrio un error inesperado");
+        } catch (SQLException | ParseException e) {
+            e.printStackTrace();
         }
     }
 
     private void ShowErrorMessage(String message){
-        Snackbar.make(findViewById(R.id.calory_coordinator), message, Snackbar.LENGTH_LONG).show();
+        Snackbar.make(findViewById(R.id.steps_coordinator), message, Snackbar.LENGTH_LONG).show();
         graph.setVisibility(View.INVISIBLE);
         CheckDate();
     }
@@ -83,13 +87,13 @@ public class StepsActivity extends AppCompatActivity {
         public void onClick(View v) {
             switch(v.getId()){
                 case R.id.before_steps:
-                    sunday_wek.add(Calendar.DATE, -7);
-                    saturday_wek.add(Calendar.DATE, -7);
+                    sunday_wek.roll(Calendar.DATE, -7);
+                    saturday_wek.roll(Calendar.DATE, -7);
                     BeginRequests();
                     break;
                 case R.id.next_steps:
-                    sunday_wek.add(Calendar.DATE, 7);
-                    saturday_wek.add(Calendar.DATE, 7);
+                    sunday_wek.roll(Calendar.DATE, 7);
+                    saturday_wek.roll(Calendar.DATE, 7);
                     BeginRequests();
                     break;
             }
@@ -99,19 +103,24 @@ public class StepsActivity extends AppCompatActivity {
     private void CheckDate(){
         if (saturday_wek.getTimeInMillis() >= today.getTimeInMillis() ){
             next.setOnClickListener(null);
+            next.setAlpha(.5f);
         }else{
             next.setOnClickListener(listener);
+            next.setAlpha(1f);
         }
 
         if (sunday_wek.getTimeInMillis() <= min_date.getTimeInMillis()){
             prev.setOnClickListener(null);
+            prev.setAlpha(.5f);
         }else{
             prev.setOnClickListener(listener);
+            prev.setAlpha(1f);
         }
     }
 
     private void BeginRequests(){
-        Calendar aux = sunday_wek;
+        Calendar aux = Calendar.getInstance();
+        aux.setTime(saturday_wek.getTime());
         DataBaseHelper helper = new DataBaseHelper(getApplicationContext());
         step_w = new ArrayList<>();
         step_j = new ArrayList<>();
@@ -135,6 +144,7 @@ public class StepsActivity extends AppCompatActivity {
                     //Trotar
                     StepEntries jogging = new StepEntries();
                     cursor = helper.fetchStepsByType(MainActivity.appUser.getUid(), MainActivity.appUser.getProvider(), 2, fecha);
+                    Log.i("adasda", DatabaseUtils.dumpCursorToString(cursor));
                     if (cursor != null && cursor.moveToFirst()){
                         jogging.setValue(cursor.getInt(cursor.getColumnIndex("steps")));
                     }else{
@@ -151,7 +161,7 @@ public class StepsActivity extends AppCompatActivity {
                         running.setValue(0);
                     }
                     running.setDay(aux);
-                    step_j.add(running);
+                    step_r.add(running);
                 }else{
                     StepEntries def = new StepEntries();
                     def.setDay(aux);
@@ -160,12 +170,14 @@ public class StepsActivity extends AppCompatActivity {
                     step_j.add(def);
                     step_r.add(def);
                 }
-                aux.add(Calendar.DATE, 1);
-            }while(! Constants.isSameDay(aux, saturday_wek));
+                if(Constants.isSameDay(aux, sunday_wek))
+                    break;
+                aux.roll(Calendar.DATE, 1);
+            }while(true);
             helper.close();
             FillGraph();
-        } catch (Exception e) {
-            ShowErrorMessage("Ocurrio un error inesperado");
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 
@@ -189,8 +201,11 @@ public class StepsActivity extends AppCompatActivity {
                                 trotar.add(jo);
                                 correr.add(ru);
                                 quarters[i] = fecha;
+                                i++;
+                                break;
                             }
                         }
+                        break;
                     }
                 }
             }
@@ -202,10 +217,13 @@ public class StepsActivity extends AppCompatActivity {
             };
             LineDataSet setCaminar = new LineDataSet(caminar, "Pasos caminando");
             setCaminar.setAxisDependency(YAxis.AxisDependency.LEFT);
+            setCaminar.setColors(new int[]{R.color.chart1}, getApplicationContext());
             LineDataSet setTrotar = new LineDataSet(trotar, "Pasos trotando");
             setTrotar.setAxisDependency(YAxis.AxisDependency.LEFT);
+            setTrotar.setColors(new int[]{R.color.chart2}, getApplicationContext());
             LineDataSet setCorrer = new LineDataSet(correr, "Pasos corriendo");
             setCorrer.setAxisDependency(YAxis.AxisDependency.LEFT);
+            setCorrer.setColors(new int[]{R.color.chart3}, getApplicationContext());
             List<ILineDataSet> lineDataSets = new ArrayList<>();
             lineDataSets.add(setCaminar);
             lineDataSets.add(setTrotar);

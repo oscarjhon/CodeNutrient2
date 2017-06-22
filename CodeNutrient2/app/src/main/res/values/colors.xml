@@ -10,5 +10,8 @@
     <color name="colorDivider">#BDBDBD</color>
     <color name="actionbar_opacity">#33000000</color>
     <color name="grey">#B3B3B3</color>
+    <color name="chart1">#303F9F</color>
+    <color name="chart2">#FF5252</color>
+    <color name="chart3">#4CAF50</color>
 </resources>
 

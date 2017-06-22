@@ -25,8 +25,8 @@ public class Product {
             product.setCantidad((float) attributes.getDouble("cantidad"));
             product.setCalorias((float) attributes.getDouble("calorias"));
             product.setMeasure_id(attributes.getInt("measure_id"));
-            //product.setImageURL("http:" + data.getString("imageURL"));
-            product.setImageURL(Constants.ip_addr + data.getString("imageURL"));
+            product.setImageURL("http:" + data.getString("imageURL"));
+            //product.setImageURL(Constants.ip_addr + data.getString("imageURL"));
             //product.setImageURL("http://foodapiapp.s3-us-west-1.amazonaws.com/products/images/000/000/001/mobile/LADL.png?1490501508");
             JSONObject relations = data.getJSONObject("relations");
             JSONArray has_nutrients = relations.getJSONArray("has_nutrients");

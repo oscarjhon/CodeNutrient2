@@ -84,7 +84,7 @@
                     android:background="@android:color/transparent"
                     android:layout_margin="20dp"
                     android:drawableTop="@drawable/ic_kcal"
-                    android:id="@+id/about"
+                    android:id="@+id/calory"
                     android:text="@string/menu_kcal"/>
             </LinearLayout>
         </LinearLayout>

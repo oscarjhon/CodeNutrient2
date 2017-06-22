@@ -82,15 +82,15 @@ public class Pedometer  extends Service {
             if ((value > 18 && value <= 34) && (eventMsecTime > 250 && eventMsecTime <= 400)){
                 //Correr
                 StepCounters.running ++;
-                StepCounters.r_time += value;
-            }else if ((value > 13.5 && value <= 18) && (eventMsecTime > 250 && eventMsecTime <= 500)){
+                StepCounters.r_time += eventMsecTime;
+            }else if ((value > 14 && value <= 18) && (eventMsecTime > 250 && eventMsecTime <= 500)){
                 //paso trotando
                 StepCounters.jogging ++;
-                StepCounters.j_time += value;
-            }else if ((value <= 15) && (eventMsecTime > 300 && eventMsecTime <= 800)){
+                StepCounters.j_time += eventMsecTime;
+            }else if ((value <= 14) && (eventMsecTime > 300 && eventMsecTime <= 800)){
                 //caminando
                 StepCounters.walking ++;
-                StepCounters.w_time += value;
+                StepCounters.w_time += eventMsecTime;
             }
             Log.i(Tag, "Normal: " +StepCounters.walking + " Trotando: " + StepCounters.jogging + " Corriendo: " +StepCounters.running);
         }
@@ -100,28 +100,33 @@ public class Pedometer  extends Service {
         hourtimerm = new Timer();
         InitializeHourTask();
         //hourtimerm.schedule(hourtask, 3600000);
-        hourtimerm.schedule(hourtask, 60000*5);
+        hourtimerm.schedule(hourtask, 60000);
     }
 
     private void startM5Task(){
         m5timer = new Timer();
         Initialize5MTimerTask();
-        m5timer.schedule(m5taskt, 0, 60000);
+        m5timer.schedule(m5taskt, 60000);
         //m5timer.schedule(m5taskt, 0, 5000);
     }
 
     private boolean already = false;
+
     private void Initialize5MTimerTask(){
+
         m5taskt = new TimerTask() {
             @Override
             public void run() {
-                if (!isAppOnForeground(getApplicationContext()) && !already){
-                    already = true;
-                    StartPedometer();
+                if (!isAppOnForeground(getApplicationContext())){
+                    if(!already) {
+                        already = true;
+                        StartPedometer();
+                    }
                 }else{
                     already = false;
                     StopPedometer();
                 }
+                startM5Task();
             }
         };
     }
@@ -130,14 +135,19 @@ public class Pedometer  extends Service {
         hourtask = new TimerTask() {
             @Override
             public void run() {
-                //Guardar la infomeación en la base de datos
+                //Log.i("PEdometer","2");
+                //Guardar la información en la base de datos
                 SaveDatabase(getApplicationContext());
+                //Log.i("PEdometer","Inicio hourtask");
+                startHourTask();
             }
         };
     }
 
     private void SaveDatabase(Context ctx){
         DataBaseHelper helper = new DataBaseHelper(ctx);
+        Log.i("PEDOMETER", "GUARDANDO en base de datos");
+        Log.i("PEDOMETER", "value" + StepCounters.j_time + "");
         try {
             float caminar = 3.3f;
             float trotar = 5.0f;
@@ -151,7 +161,7 @@ public class Pedometer  extends Service {
                 correr = cursor.getFloat(cursor.getColumnIndex("correr"));
             }
             if (StepCounters.walking != 0){
-                double minutes = StepCounters.w_time/6000;
+                double minutes = StepCounters.w_time/60000;
                 int steps = StepCounters.walking;
                 float calories = (float) (caminar * minutes);
                 if (minutes > 1) {
@@ -162,18 +172,21 @@ public class Pedometer  extends Service {
                 }
             }
             if (StepCounters.jogging != 0){
-                double minutes = StepCounters.j_time/6000;
+                double minutes = StepCounters.j_time/60000;
                 int steps = StepCounters.jogging;
                 float calories = (float) (trotar * minutes);
-                if (minutes > 1) {
+                Log.i("PEDOMETER", "calorías: "+ calories+ " minutos " + minutes);
+                if (minutes >= 1){
+                    Log.i("PEDOMETER", "entro" + user_id);
                     helper.insertCalorieHistory(user_id, calories);
-                    helper.insertSteps(user_id, steps, 2);
+                    long i = helper.insertSteps(user_id, steps, 2);
+                    Log.i("PEDOMETER", "registro"+i);
                     StepCounters.j_time = 0;
                     StepCounters.jogging = 0;
                 }
             }
             if (StepCounters.running != 0){
-                double minutes = StepCounters.r_time/6000;
+                double minutes = StepCounters.r_time/60000;
                 int steps = StepCounters.running;
                 float calories = (float) (correr * minutes);
                 if (minutes > 1) {
@@ -183,7 +196,9 @@ public class Pedometer  extends Service {
                     StepCounters.running = 0;
                 }
             }
-        } catch (SQLException ignored) {}
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     private void StartPedometer(){

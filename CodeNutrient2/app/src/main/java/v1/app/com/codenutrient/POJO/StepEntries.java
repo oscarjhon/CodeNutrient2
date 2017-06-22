@@ -11,12 +11,16 @@ public class StepEntries {
     private Calendar day;
     private float value;
 
+    public StepEntries(){
+        day = Calendar.getInstance();
+    }
+
     public Calendar getDay() {
         return day;
     }
 
     public void setDay(Calendar day) {
-        this.day = day;
+        this.day.setTime(day.getTime());
     }
 
     public float getValue() {

@@ -39,7 +39,7 @@ import v1.app.com.codenutrient.Services.Pedometer;
 public class MainActivity extends AppCompatActivity {
     public static AppUser appUser;
     private int CAMERA_INTENT = 1;
-    public Button about;
+    public Button calory;
     public Button calendario;
     public Button camara;
     public Button cuenta;
@@ -61,13 +61,13 @@ public class MainActivity extends AppCompatActivity {
         calendario = (Button) findViewById(R.id.calendario);
         coordinator = (CoordinatorLayout) findViewById(R.id.main_coordinator);
         steps = (Button) findViewById(R.id.steps);
-        about = (Button) findViewById(R.id.about);
+        calory = (Button) findViewById(R.id.calory);
         camara.setOnClickListener(onClickListener);
         cuenta.setOnClickListener(onClickListener);
         graficas.setOnClickListener(onClickListener);
         calendario.setOnClickListener(onClickListener);
         steps.setOnClickListener(onClickListener);
-        about.setOnClickListener(onClickListener);
+        calory.setOnClickListener(onClickListener);
         service = new Pedometer();
         mServiceIntent = new Intent(this, service.getClass());
         checkNSendCalories();
@@ -183,6 +183,9 @@ public class MainActivity extends AppCompatActivity {
                 case R.id.steps:
                     isManagerOnline();
                     break;
+                case R.id.calory:
+                    isManagerOnline();
+                    break;
             }
         }
     };
@@ -243,6 +246,10 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case R.id.steps:
                 intent = getIntent().setClass(MainActivity.this, StepsActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.calory:
+                intent = getIntent().setClass(MainActivity.this, CaloryActivity.class);
                 startActivity(intent);
         }
     }

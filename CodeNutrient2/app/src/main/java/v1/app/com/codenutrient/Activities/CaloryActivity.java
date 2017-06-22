@@ -63,9 +63,7 @@ public class CaloryActivity extends AppCompatActivity {
         saturday_wek = Calendar.getInstance();
         min_date = Calendar.getInstance();
 
-        sunday_wek.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
-        saturday_wek.set(Calendar.DAY_OF_WEEK, Calendar.SATURDAY);
-
+        saturday_wek.roll(Calendar.DATE, -6);
         manager = new HttpManager();
 
         DataBaseHelper helper = new DataBaseHelper(getApplicationContext());
@@ -98,13 +96,13 @@ public class CaloryActivity extends AppCompatActivity {
         public void onClick(View v) {
             switch(v.getId()){
                 case R.id.before_calory:
-                    sunday_wek.add(Calendar.DATE, -7);
-                    saturday_wek.add(Calendar.DATE, -7);
+                    sunday_wek.roll(Calendar.DATE, -7);
+                    saturday_wek.roll(Calendar.DATE, -7);
                     BeginRequests();
                     break;
                 case R.id.next_calory:
-                    sunday_wek.add(Calendar.DATE, 7);
-                    saturday_wek.add(Calendar.DATE, 7);
+                    sunday_wek.roll(Calendar.DATE, 7);
+                    saturday_wek.roll(Calendar.DATE, 7);
                     BeginRequests();
                     break;
             }
@@ -118,14 +116,18 @@ public class CaloryActivity extends AppCompatActivity {
     private void CheckDate(){
         if (saturday_wek.getTimeInMillis() >= today.getTimeInMillis() ){
             next.setOnClickListener(null);
+            next.setAlpha(.5f);
         }else{
             next.setOnClickListener(listener);
+            next.setAlpha(1f);
         }
 
         if (sunday_wek.getTimeInMillis() <= min_date.getTimeInMillis()){
             prev.setOnClickListener(null);
+            prev.setAlpha(.5f);
         }else{
             prev.setOnClickListener(listener);
+            prev.setAlpha(1f);
         }
     }
 
@@ -175,8 +177,10 @@ public class CaloryActivity extends AppCompatActivity {
             };
             LineDataSet setGasto = new LineDataSet(gasto, "Calorías quemadas");
             setGasto.setAxisDependency(YAxis.AxisDependency.LEFT);
+            setGasto.setColors(new int[]{R.color.chart1}, getApplicationContext());
             LineDataSet setConsumo = new LineDataSet(consumo, "Calorías consumidas");
             setConsumo.setAxisDependency(YAxis.AxisDependency.LEFT);
+            setConsumo.setColors(new int[]{R.color.chart2}, getApplicationContext());
 
             List<ILineDataSet> dataSets = new ArrayList<>();
             dataSets.add(setGasto);
@@ -207,7 +211,8 @@ public class CaloryActivity extends AppCompatActivity {
             float kcal = MainActivity.appUser.getInfoAppUser().getMax_calorias();
             Calories request = new Calories();
             ArrayList<CaloryEntries> entities = new ArrayList<>();
-            Calendar aux = sunday_wek;
+            Calendar aux = Calendar.getInstance();
+            aux.setTime(saturday_wek.getTime());
             do{
                 if((aux.getTimeInMillis() < today.getTimeInMillis() || Constants.isSameDay(today, aux)) &&
                         (aux.getTimeInMillis() > min_date.getTimeInMillis() || Constants.isSameDay(aux, min_date) )){
@@ -256,8 +261,10 @@ public class CaloryActivity extends AppCompatActivity {
                     entry.setDay(aux);
                     entities.add(entry);
                 }
-                aux.add(Calendar.DATE, 1);
-            }while(! Constants.isSameDay(aux, saturday_wek));
+                if(Constants.isSameDay(aux, sunday_wek))
+                    break;
+                aux.roll(Calendar.DATE, 1);
+            }while(true);
             return entities;
         }
 
@@ -275,7 +282,8 @@ public class CaloryActivity extends AppCompatActivity {
             boolean reloaded = false;
             ArrayList<StepEntries> entities = new ArrayList<>();
             HasProduct request = new HasProduct();
-            Calendar aux = sunday_wek;
+            Calendar aux = Calendar.getInstance();
+            aux.setTime(saturday_wek.getTime());
             do{
                 if((aux.getTimeInMillis() < today.getTimeInMillis() || Constants.isSameDay(today, aux)) &&
                         (aux.getTimeInMillis() > min_date.getTimeInMillis() || Constants.isSameDay(aux, min_date) )){
@@ -329,8 +337,10 @@ public class CaloryActivity extends AppCompatActivity {
                     entries.setDay(aux);
                     entities.add(entries);
                 }
-                aux.add(Calendar.DATE, 1);
-            }while(! Constants.isSameDay(aux, saturday_wek));
+                if(Constants.isSameDay(aux, sunday_wek))
+                    break;
+                aux.roll(Calendar.DATE, 1);
+            }while(true);
             return entities;
         }
 

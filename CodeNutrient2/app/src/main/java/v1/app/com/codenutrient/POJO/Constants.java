@@ -8,8 +8,8 @@ public class Constants {
     public static final String eaten_nutrients = "eaten_nutrients";
     public static final String has_products = "has_products";
     public static final String info_app_users = "info_app_users";
-    //public static final String ip_addr = "https://food-api-app.herokuapp.com/";
-    public static final String ip_addr = "http://172.16.10.68/";
+    public static final String ip_addr = "https://food-api-app.herokuapp.com/";
+    //public static final String ip_addr = "http://172.16.10.68/";
     public static final String products = "products/";
     public static final String service_version = "api/v1/";
     public static final String values = "best_nutrient_values";

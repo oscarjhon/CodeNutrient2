@@ -32,8 +32,8 @@ public class HasProduct {
                     product.setCode(j_product_attributes.getString("codigo"));
                     product.setDate(j_product_attributes.getString("created_at"));
                     product.setMeasure_id(has_attributes.getInt("measure_id"));
-                    //product.setImageURL("http:" + j_product.getString("imageURL"));
-                    product.setImageURL(Constants.ip_addr + j_product.getString("imageURL"));
+                    product.setImageURL("http:" + j_product.getString("imageURL"));
+                    //product.setImageURL(Constants.ip_addr + j_product.getString("imageURL"));
                     products.add(product);
                 }
             }
