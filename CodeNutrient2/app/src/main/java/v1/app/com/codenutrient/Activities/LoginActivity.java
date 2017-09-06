@@ -34,7 +34,6 @@ import v1.app.com.codenutrient.POJO.AppUser;
 import v1.app.com.codenutrient.R;
 
 public class LoginActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
-   public TextView prueba;
     private int RC_SIGN_IN;
     public static GoogleApiClient googleApiClient;
     private GoogleSignInOptions googleSignInOptions;
