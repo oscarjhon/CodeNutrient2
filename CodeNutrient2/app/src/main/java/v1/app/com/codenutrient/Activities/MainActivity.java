@@ -73,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
         checkNSendCalories();
         coordinator.setVisibility(View.VISIBLE);
         //Enviar pasos y calorias si las hay
-        //Habilitar campos (Los campos deben estar inactivos)
+        //Habilitar campos (Los campos deben estar inactivoos)
     }
 
     @Override
