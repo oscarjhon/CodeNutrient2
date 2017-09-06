@@ -40,7 +40,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     public ImageView image;
     public ProgressBar progressBar;
     public SignInButton signInButton;
-    public TextView text;
+    public TextView
 
     public void onCreate(Bundle saveState) {
         super.onCreate(saveState);
